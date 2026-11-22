@@ -1,0 +1,37 @@
+# Project plan (kept private)
+project_plan.md
+PROJECT_PLAN.md
+
+# Environments
+venv/
+env/
+.venv/
+ENV/
+
+# Python cache & bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Pytest & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local databases & Large binary files
+data/chroma_db/
+data/bm25_index/*.pkl
+*.tar.gz
+*.zip
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs & Environment variables
+*.log
+.env
+

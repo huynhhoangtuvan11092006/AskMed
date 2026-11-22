@@ -1,0 +1,43 @@
+# ==============================================================================
+# Ask_Med: Production-Tested Requirements
+# Evidence-Based Medical Question Answering System
+# ==============================================================================
+
+# Core Data & PubMed Fetching
+biopython==1.88
+requests==2.34.2
+pandas==2.3.3
+pytz==2026.6
+numpy==1.26.4
+
+# Vector Database & Retrieval
+chromadb==1.5.9
+grpcio==1.62.2
+rank-bm25==0.2.2
+sentence-transformers==6.3.0
+scikit-learn==1.3.2
+pyarrow==14.0.2
+datasets==2.21.0
+
+# Local LLM Integration
+ollama==0.6.3
+
+# Evaluation Framework
+ragas==0.4.4
+
+# Backend API
+fastapi==0.164.0
+uvicorn==0.54.0
+pydantic==2.14.3
+pydantic-settings==2.16.3
+
+# Frontend UI & Visualization
+streamlit==1.67.0
+plotly==7.1.0
+
+# Configuration & Utilities
+pyyaml==6.0.3
+tqdm==4.70.1
+
+# Testing
+pytest==9.2.0

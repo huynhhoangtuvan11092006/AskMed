@@ -1,0 +1,57 @@
+[
+  {
+    "pmid": "43014822",
+    "title": "Effect of discontinuing antihypertensives on perioperative hypotension in older patients before non-cardiac surgery: multicentre, randomised, double blind, controlled trial",
+    "abstract": "ObjectiveTo determine whether discontinuing versus continuing angiotensin converting enzyme (ACE) inhibitors or angiotensin receptor blockers (ARBs) on the morning of surgery reduces perioperative hypotension in older patients undergoing non-cardiac surgery.DesignMulticentre, randomised, double blind, placebo controlled trial.SettingFive tertiary teaching hospitals in China, November 2020 to December 2023.Participants2036 older patients (60-80 years) using ACE inhibitors or ARBs for at least two weeks and scheduled for non-cardiac surgery under general anaesthesia.InterventionsPatients were randomised to receive their usual ACE inhibitor or ARB or a placebo in identical capsules on the morning of surgery.Main outcome measuresThe primary outcome was the incidence of perioperative hypotension (mean blood pressure Results2012 patients (mean age 68.8 years; 54.4% male) completed the study: 1004 were included in the antihypertensive group and 1008 in the no antihypertensive group. The incidence of perioperative hypotension was lower in the no antihypertensive group (314/1008, 31.2%) versus antihypertensive group (457/1004, 45.5%): adjusted odds ratio 0.52 (95% confidence interval (CI) 0.43 to 0.63); absolute risk difference -14.4% (95% CI -18.5% to -10.1%); Pv 41.1%; adjusted odds ratio 0.54 (95% CI 0.44 to 0.66). Intraoperative fluid volume, postoperative hypotension, 30 day complications, and mortality did not differ significantly between groups.ConclusionsDiscontinuing ACE inhibitors or ARBs on the morning of surgery in older patients with hypertension statistically significantly reduced perioperative hypotension and the requirement for vasopressors without increasing 30 day complications or mortality. This simple strategy provides high certainty evidence for preoperative drug management in this patient population.Trial registrationChinese Clinical Trial Registry ChiCTR2000039376.",
+    "journal": "BMJ (Clinical research ed.)",
+    "pub_date": "2026-11-11",
+    "doi": "10.1136/bmj-2026-101087",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/43014822/",
+    "mesh_terms": [
+      "Humans",
+      "Hypotension",
+      "Intraoperative Complications",
+      "Postoperative Complications",
+      "Antihypertensive Agents",
+      "Angiotensin-Converting Enzyme Inhibitors",
+      "Surgical Procedures, Operative",
+      "Double-Blind Method",
+      "Aged",
+      "Aged, 80 and over",
+      "Middle Aged",
+      "China",
+      "Female",
+      "Male",
+      "Angiotensin Receptor Antagonists",
+      "Treatment Interruption",
+      "Geriatric Anesthesia"
+    ]
+  },
+  {
+    "pmid": "42953388",
+    "title": "Treatment and practical considerations of IgA nephropathy",
+    "abstract": "IgA nephropathy is a common cause of glomerular disease that may result in kidney failure. Until recently, angiotensin blockade using angiotensin converting enzyme (ACE) inhibitors and angiotensin receptor blockers (ARB) were the main treatment options for patients with IgA nephropathy. Newer drugs such as sodium-glucose co-transporter 2 (SGLT2) inhibitors, endothelin angiotensin receptor antagonists (DEARA), endothelin receptor antagonists (ERA), complement inhibitors, targeted release formulation glucocorticoids, and a proliferation-inducing ligand (APRIL) and B cell activation factor (BAFF) inhibitors have shown promise in reducing proteinuria and delaying the progression of IgA nephropathy. In this review, we will explore the latest pharmacological options, their efficacy, and when they should be considered in adult patients with IgA nephropathy.",
+    "journal": "Frontiers in medicine",
+    "pub_date": "2026-10-14",
+    "doi": "10.3389/fmed.2026.1911077",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/42953388/",
+    "mesh_terms": []
+  },
+  {
+    "pmid": "42709280",
+    "title": "Effects of heart failure pharmacotherapy on natriuresis and diuresis: A narrative review",
+    "abstract": "Neurohormonal overactivation and the resulting sodium avidity, driving sodium retention, are important mechanisms underlying the signs and symptoms of heart failure (HF). Blockade of the renin-angiotensin-aldosterone and adrenergic systems therefore represents a central therapeutic target and cornerstone of HF pharmacotherapy, theoretically counteracting sodium avidity. Paradoxically, evidence on how neurohormonal blockade affects markers of sodium avidity, natriuresis, and diuresis remains fragmented, with no integrated summary to date. This review aims to synthesize available evidence on the impact of guideline-directed medical therapy and other HF therapies on sodium excretion/diuresis in HF [Fig. 1]. Here we present comprehensive review of available data on this topic. The scarcity of high-quality studies, small sample sizes, and conflicting results preclude definitive conclusions; accordingly, we refrain from formulating any. Interpretation is further limited by the lack of a standardized method for assessing sodium excretion independent of confounders such as renal function and dietary sodium intake, which restricts reproducibility across studies.",
+    "journal": "Heart failure reviews",
+    "pub_date": "2026-09-08",
+    "doi": "10.1007/s10741-026-10676-6",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/42709280/",
+    "mesh_terms": [
+      "Humans",
+      "Sodium",
+      "Renin-Angiotensin System",
+      "Diuresis",
+      "Natriuresis",
+      "Heart Failure"
+    ]
+  }
+]
