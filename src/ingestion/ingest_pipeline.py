@@ -26,13 +26,13 @@ from src.retrieval.vector_search import ChromaVectorStore
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
-# Core clinical topics for seeding initial medical knowledge base (~200-300 articles)
+# Core clinical topics for seeding foundational medical knowledge base (5 x 300 = 1,500 articles)
 DEFAULT_SEED_QUERIES = [
-    "type 2 diabetes mellitus metformin therapy",
-    "hypertension management ace inhibitors arb",
-    "heart failure reduced ejection fraction guidelines",
-    "semaglutide obesity weight loss clinical trial",
-    "chronic obstructive pulmonary disease bronchodilators",
+    "diabetes mellitus treatment",
+    "hypertension management",
+    "COVID-19 clinical outcomes",
+    "cancer immunotherapy",
+    "antibiotic resistance",
 ]
 
 
@@ -180,7 +180,7 @@ class IngestionPipeline:
     def seed_knowledge_base(
         self,
         queries: Optional[List[str]] = None,
-        limit_per_query: int = 50,
+        limit_per_query: int = 300,
     ) -> Dict[str, Any]:
         """
         Executes a seed run over multiple foundational medical topics
@@ -268,8 +268,8 @@ def build_cli_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-l", "--limit",
         type=int,
-        default=50,
-        help="Maximum articles to fetch per query (default: 50).",
+        default=300,
+        help="Maximum articles to fetch per query (default: 300).",
     )
     return parser
 
@@ -339,3 +339,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

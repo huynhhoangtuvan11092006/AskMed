@@ -106,15 +106,19 @@ class BM25Index:
         if not new_chunks:
             return len(self.chunks)
 
-        existing_ids = {c.chunk_id for c in self.chunks}
-        to_add = [c for c in new_chunks if c.chunk_id not in existing_ids]
+        seen_ids = {c.chunk_id for c in self.chunks}
+        to_add: List[MedicalChunk] = []
+        for c in new_chunks:
+            if c.chunk_id not in seen_ids:
+                seen_ids.add(c.chunk_id)
+                to_add.append(c)
 
         if not to_add:
             logger.info("All new chunks already exist in BM25 index. Skipping rebuild.")
             return len(self.chunks)
 
         combined_chunks = self.chunks + to_add
-        logger.info(f"Adding {len(to_add)} new chunks to BM25 index (total: {len(combined_chunks)})...")
+        logger.info(f"Adding {len(to_add)} new unique chunks to BM25 index (total: {len(combined_chunks)})...")
         return self.build_index(combined_chunks, auto_save=auto_save)
 
     def search(self, query: str, top_k: Optional[int] = None) -> List[Dict[str, Any]]:

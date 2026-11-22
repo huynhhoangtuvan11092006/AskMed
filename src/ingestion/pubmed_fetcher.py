@@ -233,24 +233,39 @@ class PubMedFetcher:
     # --------------------------------------------------------------------------
 
     def _search_pmids_europe_pmc(self, query: str, max_results: int = 50) -> List[str]:
-        """Searches PMIDs via Europe PMC REST API."""
-        params = {
-            "query": f"({query}) AND (SRC:MED)",
-            "format": "json",
-            "pageSize": min(max_results, 100),
-            "resultType": "lite",
-        }
-        try:
-            resp = requests.get(self.EUROPE_PMC_BASE, params=params, timeout=15)
-            resp.raise_for_status()
-            data = resp.json()
-            results = data.get("resultList", {}).get("result", [])
-            pmids = [str(r.get("pmid")) for r in results if r.get("pmid")]
-            logger.info(f"Europe PMC returned {len(pmids)} PMIDs.")
-            return pmids
-        except Exception as e:
-            logger.error(f"Europe PMC search failed: {e}")
-            return []
+        """Searches PMIDs via Europe PMC REST API with pagination support."""
+        pmids: List[str] = []
+        page = 1
+        page_size = min(max_results, 100)
+
+        while len(pmids) < max_results:
+            params = {
+                "query": f"({query}) AND (SRC:MED)",
+                "format": "json",
+                "pageSize": page_size,
+                "page": page,
+                "resultType": "lite",
+            }
+            try:
+                resp = requests.get(self.EUROPE_PMC_BASE, params=params, timeout=20)
+                resp.raise_for_status()
+                data = resp.json()
+                results = data.get("resultList", {}).get("result", [])
+                if not results:
+                    break
+                batch_pmids = [str(r.get("pmid")) for r in results if r.get("pmid")]
+                if not batch_pmids:
+                    break
+                pmids.extend(batch_pmids)
+                if len(results) < page_size:
+                    break
+                page += 1
+            except Exception as e:
+                logger.error(f"Europe PMC search failed on page {page}: {e}")
+                break
+
+        logger.info(f"Europe PMC returned {len(pmids[:max_results])} PMIDs.")
+        return pmids[:max_results]
 
     def _fetch_pmids_europe_pmc(self, pmids: List[str]) -> List[PubMedArticle]:
         """Fetches full article metadata for a list of PMIDs via Europe PMC."""

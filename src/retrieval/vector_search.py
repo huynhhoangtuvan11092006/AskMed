@@ -27,16 +27,28 @@ class OllamaEmbeddingClient:
         self.model_name = model_name or cfg.models.ollama.embed_model
         self.client = ollama.Client(host=self.base_url)
 
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+    def embed_documents(self, texts: List[str], batch_size: int = 32) -> List[List[float]]:
         """
-        Embeds a list of document chunks.
+        Embeds a list of document chunks using batched inference for high performance.
         Prepends 'search_document: ' task prefix as recommended by Nomic AI for MTEB retrieval.
         """
+        if not texts:
+            return []
+
         embeddings: List[List[float]] = []
-        for text in texts:
-            prompt = f"search_document: {text}"
-            res = self.client.embeddings(model=self.model_name, prompt=prompt)
-            embeddings.append(res["embedding"])
+        for i in range(0, len(texts), batch_size):
+            batch = texts[i : i + batch_size]
+            prompts = [f"search_document: {t}" for t in batch]
+            try:
+                # Use high-speed batched embedding endpoint supported in Ollama v0.3+
+                res = self.client.embed(model=self.model_name, input=prompts)
+                embeddings.extend(res["embeddings"])
+            except Exception:
+                # Transparent fallback to single sequential embedding if batching fails
+                for prompt in prompts:
+                    res = self.client.embeddings(model=self.model_name, prompt=prompt)
+                    embeddings.append(res["embedding"])
+
         return embeddings
 
     def embed_query(self, query: str) -> List[float]:

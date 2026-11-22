@@ -121,3 +121,4 @@ def test_pipeline_stats(test_pipeline, mock_articles):
     assert stats["chroma_chunks"] >= 2
     assert stats["chroma_pmids"] == 2
     assert stats["bm25_chunks"] >= 2
+
