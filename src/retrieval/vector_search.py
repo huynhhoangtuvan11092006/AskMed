@@ -230,6 +230,15 @@ if __name__ == "__main__":
     print(f"Persist Directory: {store.persist_dir}")
     print(f"Collection Name  : {store.collection_name}")
     print(f"Total Chunks     : {store.count()}")
-    print(f"Indexed PMIDs    : {store.get_all_pmids()}")
+    print(f"Unique PMIDs     : {len(store.get_all_pmids())}")
     print("=" * 60)
+
+    if store.count() > 0:
+        sample_query = "What is the first-line medication for type 2 diabetes?"
+        print(f"\nDEMO DENSE RETRIEVAL for query: '{sample_query}' (Top 3):")
+        hits = store.search(sample_query, top_k=3)
+        for rank, hit in enumerate(hits, 1):
+            print(f"[{rank}] PMID: {hit['pmid']} | Score: {hit['score']} | Dist: {hit['distance']}")
+            print(f"    Title: {hit['title']}")
+            print(f"    Text: {hit['text'][:120]}...\n")
 

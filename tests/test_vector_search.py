@@ -120,6 +120,52 @@ class TestVectorSearch:
         assert "111" not in temp_vector_store.get_all_pmids()
         assert "222" in temp_vector_store.get_all_pmids()
 
+    def test_04_dense_search_top_k_retrieval(self, temp_vector_store):
+        """Test retrieving Top 20 dense search results with similarity scores and ranking."""
+        # Create 25 mock chunks
+        chunks = [
+            MedicalChunk(
+                chunk_id=f"chunk_{i}",
+                pmid=f"pmid_{i}",
+                title=f"Clinical study {i} on hypertension and beta-blockers",
+                text=f"Passage {i}: Beta-blockers reduce heart rate and blood pressure in hypertensive patients.",
+                chunk_index=0,
+                total_chunks=1,
+                token_count=20,
+                journal="Cardiovascular Journal",
+                pub_date="2024",
+            )
+            for i in range(25)
+        ]
+        temp_vector_store.add_chunks(chunks)
+        assert temp_vector_store.count() == 25
+
+        # Query top 20
+        results = temp_vector_store.search("blood pressure beta-blockers", top_k=20)
+        assert len(results) == 20
+
+        # Check required fields
+        for r in results:
+            assert "chunk_id" in r
+            assert "text" in r
+            assert "metadata" in r
+            assert "pmid" in r
+            assert "title" in r
+            assert "url" in r
+            assert "score" in r
+            assert "distance" in r
+            assert 0.0 <= r["score"] <= 1.0
+            assert r["distance"] >= 0.0
+
+        # Scores should be in descending order
+        scores = [r["score"] for r in results]
+        assert scores == sorted(scores, reverse=True)
+
+    def test_05_dense_search_empty_store(self, temp_vector_store):
+        """Test dense search on empty ChromaDB collection returns empty list."""
+        results = temp_vector_store.search("any medical query", top_k=20)
+        assert results == []
+
 
 if __name__ == "__main__":
     pytest.main(["-v", "-s", __file__])
