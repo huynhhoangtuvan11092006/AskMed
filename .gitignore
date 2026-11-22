@@ -22,6 +22,7 @@ htmlcov/
 # Local databases & Large binary files
 data/chroma_db/
 data/bm25_index/*.pkl
+data/raw/*.json
 *.tar.gz
 *.zip
 
