@@ -229,3 +229,12 @@ if __name__ == "__main__":
     print(f"Total Chunks    : {index.count()}")
     print("=" * 60)
 
+    if index.count() > 0:
+        sample_query = "What is the first-line medication for type 2 diabetes?"
+        print(f"\nDEMO BM25 KEYWORD RETRIEVAL for query: '{sample_query}' (Top 3):")
+        hits = index.search(sample_query, top_k=3)
+        for rank, hit in enumerate(hits, 1):
+            print(f"[{rank}] PMID: {hit['pmid']} | BM25 Score: {hit['score']}")
+            print(f"    Title: {hit['title']}")
+            print(f"    Text: {hit['text'][:120]}...\n")
+

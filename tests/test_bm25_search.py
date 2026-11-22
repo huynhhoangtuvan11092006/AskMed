@@ -123,3 +123,46 @@ def test_bm25_empty_or_no_match(tmp_path: Path, sample_chunks):
     index.build_index(sample_chunks, auto_save=False)
     results = index.search("astronomy mars rover galaxy spacecraft")
     assert results == []
+
+
+def test_bm25_top_k_retrieval(tmp_path: Path):
+    """Test BM25 Top 20 retrieval and descending score ordering."""
+    test_index_file = tmp_path / "bm25_top20.pkl"
+    index = BM25Index(index_file=test_index_file)
+
+    # Create 25 mock chunks mentioning metformin
+    chunks = [
+        MedicalChunk(
+            chunk_id=f"chunk_{i}",
+            pmid=f"pmid_{i}",
+            title=f"Clinical study {i} on metformin glycemic efficacy",
+            text=f"Metformin dosage {i} improves glycemic control in adult patients.",
+            chunk_index=0,
+            total_chunks=1,
+            token_count=15,
+            journal="Diabetes Journal",
+            pub_date="2024",
+        )
+        for i in range(25)
+    ]
+    index.build_index(chunks, auto_save=False)
+    assert index.count() == 25
+
+    # Retrieve Top 20 (standard default)
+    hits = index.search("metformin glycemic control", top_k=20)
+    assert len(hits) == 20
+
+    # Ensure required keys exist and scores are in descending order
+    scores = []
+    for hit in hits:
+        assert "chunk_id" in hit
+        assert "text" in hit
+        assert "metadata" in hit
+        assert "pmid" in hit
+        assert "title" in hit
+        assert "url" in hit
+        assert "score" in hit
+        assert hit["score"] > 0
+        scores.append(hit["score"])
+
+    assert scores == sorted(scores, reverse=True)
