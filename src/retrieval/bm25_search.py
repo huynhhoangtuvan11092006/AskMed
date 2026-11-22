@@ -98,6 +98,25 @@ class BM25Index:
 
         return len(self.chunks)
 
+    def add_chunks(self, new_chunks: List[MedicalChunk], auto_save: bool = True) -> int:
+        """
+        Merges new chunks into the existing index (deduplicating by chunk_id)
+        and re-fits the BM25Okapi model.
+        """
+        if not new_chunks:
+            return len(self.chunks)
+
+        existing_ids = {c.chunk_id for c in self.chunks}
+        to_add = [c for c in new_chunks if c.chunk_id not in existing_ids]
+
+        if not to_add:
+            logger.info("All new chunks already exist in BM25 index. Skipping rebuild.")
+            return len(self.chunks)
+
+        combined_chunks = self.chunks + to_add
+        logger.info(f"Adding {len(to_add)} new chunks to BM25 index (total: {len(combined_chunks)})...")
+        return self.build_index(combined_chunks, auto_save=auto_save)
+
     def search(self, query: str, top_k: Optional[int] = None) -> List[Dict[str, Any]]:
         """
         Performs BM25 keyword retrieval.
@@ -116,14 +135,21 @@ class BM25Index:
 
         # Calculate BM25 scores for all documents in corpus
         scores = self.bm25.get_scores(tokenized_query)
+        query_token_set = set(tokenized_query)
 
         # Pair each chunk with its score and sort descending
         scored_pairs = []
         for idx, score in enumerate(scores):
-            if score > 0:  # Only consider documents with at least one keyword match
-                scored_pairs.append((self.chunks[idx], float(score)))
+            doc_tokens = set(tokenize_medical_text(self.chunks[idx].text))
+            matched = query_token_set.intersection(doc_tokens)
+            if not matched:
+                continue
 
-        # Sort by BM25 score descending
+            # In normal corpora score > 0; for tiny N <= 2 edge cases, fallback to matched count
+            effective_score = float(score) if score > 0 else float(len(matched))
+            scored_pairs.append((self.chunks[idx], effective_score))
+
+        # Sort by score descending
         scored_pairs.sort(key=lambda x: x[1], reverse=True)
 
         # Slice top_k
@@ -198,3 +224,4 @@ if __name__ == "__main__":
     print(f"Index File Path : {index.index_file}")
     print(f"Total Chunks    : {index.count()}")
     print("=" * 60)
+

@@ -220,3 +220,4 @@ if __name__ == "__main__":
     print(f"Total Chunks     : {store.count()}")
     print(f"Indexed PMIDs    : {store.get_all_pmids()}")
     print("=" * 60)
+
