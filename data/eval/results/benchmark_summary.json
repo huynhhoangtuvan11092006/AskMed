@@ -1,21 +1,19 @@
 {
   "total_evaluated": 20,
-  "successful_rows": 19,
-  "timestamp": "2026-11-24T15:18:22.875255",
-  "macro_averages": {
-    "faithfulness": 0.8034,
-    "answer_relevancy": 0.3076,
-    "context_precision": 0.7775,
+  "grounding_rate": 1.0,
+  "averages": {
+    "faithfulness": 0.9087,
+    "answer_relevancy": 0.9626,
+    "context_precision": 0.8627,
     "context_recall": 1.0,
-    "ragas_composite": 0.7221,
-    "hit_rate@1": 0.4211,
-    "hit_rate@5": 0.6316,
-    "mrr": 0.5044,
-    "precision@5": 0.1684,
-    "recall@5": 0.5526,
-    "grounding_rate": 1.0,
-    "avg_rerank_score": 0.6154,
-    "top1_rerank_score": 3.3156,
-    "avg_latency_total_sec": 376.12
+    "ragas_composite": 0.9335,
+    "hit_rate@1": 0.4,
+    "hit_rate@5": 0.6,
+    "mrr": 0.4708,
+    "precision@5": 0.16,
+    "recall@5": 0.525,
+    "avg_rerank_score": 0.6872,
+    "top1_rerank_score": 3.2639,
+    "latency_total_sec": 198.7453
   }
 }
