@@ -82,29 +82,11 @@ if __name__ == "__main__":
     pmid_map = load_pmid_texts()
     evaluator = RagasMedicalEvaluator()
 
-    # 1. Rescore 25 questions benchmark
-    if Path("data/eval/results/benchmark_report_all_25.csv").exists():
-        rescore_csv(
-            "data/eval/results/benchmark_report_all_25.csv",
-            "data/eval/results/benchmark_summary_all_25.json",
-            pmid_map,
-            evaluator
-        )
-
-    # 2. Rescore 20 questions standard benchmark
+    # Rescore the unified 25 questions benchmark
     if Path("data/eval/results/benchmark_report.csv").exists():
         rescore_csv(
             "data/eval/results/benchmark_report.csv",
             "data/eval/results/benchmark_summary.json",
-            pmid_map,
-            evaluator
-        )
-
-    # 3. Rescore challenge batch 1 (5 items)
-    if Path("data/eval/results/benchmark_report_challenge_5.csv").exists():
-        rescore_csv(
-            "data/eval/results/benchmark_report_challenge_5.csv",
-            "data/eval/results/benchmark_summary_challenge_5.json",
             pmid_map,
             evaluator
         )
