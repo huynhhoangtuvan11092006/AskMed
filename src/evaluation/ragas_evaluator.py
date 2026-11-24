@@ -233,10 +233,12 @@ if __name__ == "__main__":
     parser.add_argument("--limit", type=int, default=None, help="Limit number of questions to evaluate (e.g. 5 or 50).")
     parser.add_argument("--topic", type=str, default=None, help="Filter by topic (diabetes, hypertension, etc.).")
     parser.add_argument("--category", type=str, default=None, help="Filter by category (treatment, pathogenesis, etc.).")
+    parser.add_argument("--dataset", type=str, default=None, help="Custom dataset JSON path.")
     parser.add_argument("--output", type=str, default=None, help="Custom output CSV path.")
     args = parser.parse_args()
 
-    orchestrator = BenchmarkOrchestrator()
+    custom_dataset = EvaluationDataset(filepath=args.dataset) if args.dataset else None
+    orchestrator = BenchmarkOrchestrator(dataset=custom_dataset)
     orchestrator.run_benchmark(
         limit=args.limit,
         topic=args.topic,
