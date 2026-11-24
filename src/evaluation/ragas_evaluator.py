@@ -155,7 +155,8 @@ class BenchmarkOrchestrator:
         # Compute dataset-wide macro averages
         summary = self._compute_summary(results_rows)
 
-        summary_json_path = self.output_dir / "benchmark_summary.json"
+        summary_json_name = f"{csv_path.stem.replace('report', 'summary')}.json" if "report" in csv_path.stem else f"{csv_path.stem}_summary.json"
+        summary_json_path = csv_path.parent / summary_json_name
         with open(summary_json_path, "w", encoding="utf-8") as f_json:
             json.dump(summary, f_json, indent=2)
 
