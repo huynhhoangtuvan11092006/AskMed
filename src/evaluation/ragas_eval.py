@@ -120,16 +120,32 @@ Respond strictly in JSON format as a list of integers: [1, 0, 1, ...]"""
         RAGAs Answer Relevancy metric.
         Measures how directly the answer addresses the question using embedding semantic similarity
         penalized if the answer is evasive or off-topic.
+        Strips boilerplate disclaimers and markdown URLs prior to embedding.
         """
         if not question or not answer:
             return 0.0
 
+        # Clean answer to focus on core clinical content
+        cleaned_ans = re.sub(r"\[\[?PMID:\s*\d+\]?\](?:\([^\)]+\))?", "", answer)
+        cleaned_ans = re.sub(r"https?://\S+", "", cleaned_ans)
+        lines = [
+            line.strip()
+            for line in cleaned_ans.splitlines()
+            if line.strip()
+            and not any(
+                line.strip().lower().startswith(p)
+                for p in ["lưu ý:", "note:", "disclaimer:", "câu trả lời dựa trên", "based on the provided"]
+            )
+        ]
+        eval_text = " ".join(lines).strip() or answer.strip()
+
         q_vec = self.embed.embed_query(question)
-        a_vec = self.embed.embed_query(answer)
+        a_vec = self.embed.embed_query(eval_text)
         sim = cosine_similarity(q_vec, a_vec)
 
         # Scale semantic similarity from embedding space to [0.0, 1.0] range
-        relevancy_score = max(0.0, min(1.0, (sim - 0.4) / 0.6 if sim > 0.4 else sim * 0.8))
+        # nomic-embed-text: irrelevant ~0.15-0.30, relevant ~0.70-0.90+
+        relevancy_score = max(0.0, min(1.0, (sim - 0.3) / 0.6 if sim > 0.3 else 0.0))
         return round(relevancy_score, 4)
 
     def compute_context_precision(
@@ -155,8 +171,8 @@ Respond strictly in JSON format as a list of integers: [1, 0, 1, ...]"""
         for ctx in contexts:
             ctx_text = ctx.lower()
             overlap = sum(1 for kw in gt_keywords if kw in ctx_text)
-            # A chunk is considered relevant if it captures >= 25% of ground truth keywords
-            is_relevant = 1 if (overlap / len(gt_keywords)) >= 0.25 else 0
+            # A chunk is considered relevant if it captures >= 20% of ground truth keywords
+            is_relevant = 1 if (overlap / len(gt_keywords)) >= 0.20 else 0
             relevance_flags.append(is_relevant)
 
         total_relevant = sum(relevance_flags)

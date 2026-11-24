@@ -113,9 +113,11 @@ class AskMedPipeline:
 
         return {
             "query": query,
+            "answer": raw_answer,
             "raw_answer": raw_answer,
             "formatted_answer": formatted_answer,
             "citations": [c.to_dict() for c in citations],
+            "contexts": [p.get("text", "") or p.get("metadata", {}).get("text", "") for p in top_passages],
             "retrieved_passages": top_passages,
             "grounding": grounding_audit,
             "latency": {

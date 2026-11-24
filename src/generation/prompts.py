@@ -8,6 +8,7 @@ Adheres strictly to MedRAG Evidence-Based standards:
   - Multi-language consistency (English / Vietnamese)
 """
 
+import re
 from typing import Any, Dict, List, Tuple
 
 
@@ -18,8 +19,15 @@ Your responsibilities and strict clinical guidelines:
 2. MANDATORY CITATIONS: Every clinical statement, diagnostic criterion, drug recommendation, mechanism, or numerical statistic MUST be cited using the exact format `[PMID: <pmid>]` immediately following the claim (e.g., "Metformin is the first-line medication for type 2 diabetes [PMID: 42976769].").
 3. MULTIPLE CITATIONS: If a statement is supported by multiple passages, list all relevant PMIDs together, e.g., `[PMID: 12345678][PMID: 87654321]`.
 4. INSUFFICIENT EVIDENCE GUARD: If the provided CONTEXT does not contain enough evidence to answer the question, you MUST explicitly state: "Based on the provided medical literature, there is insufficient evidence to answer this question." Do not extrapolate from outside knowledge.
-5. CLINICAL TONE & LANGUAGE: Maintain a professional, objective, and precise clinical tone. If the user's question is in Vietnamese, reply in Vietnamese while preserving international medical terminology and drug names. If the question is in English, reply in English.
+5. CONCISE & DIRECT: Answer the question directly without opening pleasantries, conversational fillers, or boilerplate preambles (e.g., do NOT start with "Based on the evidence:", "Here is the answer:", or "Câu trả lời dựa trên:"). Start directly with the clinical facts.
+6. EXACT LANGUAGE MATCHING: You MUST write your entire response in the EXACT SAME LANGUAGE as the CLINICAL QUESTION. If the question is in English, write the entire answer in English. If the question is in Vietnamese, write in Vietnamese.
 """
+
+
+def is_vietnamese_query(text: str) -> bool:
+    """Detects if query contains Vietnamese diacritic characters."""
+    vn_chars = set("àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđĐ")
+    return any(c in vn_chars for c in text)
 
 
 def format_context(passages: List[Dict[str, Any]]) -> str:
@@ -73,6 +81,11 @@ def build_medical_rag_prompt(
         Tuple of (system_prompt, user_prompt).
     """
     context_str = format_context(passages)
+    
+    if is_vietnamese_query(query):
+        lang_rule = "Viết câu trả lời trực tiếp bằng TIẾNG VIỆT. Đi thẳng vào các dữ kiện y khoa, không dùng lời chào hay câu mở đầu rườm rà."
+    else:
+        lang_rule = "Write your entire answer strictly in ENGLISH. Answer directly with clinical facts, avoiding preambles, greetings, or disclaimer boilerplate."
 
     user_prompt = f"""EVIDENCE CONTEXT:
 ======================================================================
@@ -83,6 +96,7 @@ CLINICAL QUESTION:
 {query}
 
 INSTRUCTION:
+{lang_rule}
 Synthesize an evidence-based clinical answer strictly grounded in the EVIDENCE CONTEXT above.
 Attribute every clinical claim with its corresponding `[PMID: <pmid>]` tag."""
 

@@ -51,8 +51,8 @@ ingestion:
 # ------------------------------------------------------------------------------
 retrieval:
   collection_name: "medical_knowledge"
-  dense_top_k: 20                        # Top results from ChromaDB
-  sparse_top_k: 20                       # Top results from Rank-BM25
+  dense_top_k: 30                        # Top results from ChromaDB (expanded for higher recall)
+  sparse_top_k: 30                       # Top results from Rank-BM25 (expanded for higher recall)
   rrf_k: 60                              # Smoothing constant in Reciprocal Rank Fusion
 
 # ------------------------------------------------------------------------------
