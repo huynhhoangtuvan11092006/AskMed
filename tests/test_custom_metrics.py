@@ -118,3 +118,4 @@ def test_evaluator_sample_and_batch():
     assert batch_avg["hit_rate@1"] == 0.5  # (1.0 + 0.0) / 2
     assert batch_avg["hit_rate@5"] == 1.0  # (1.0 + 1.0) / 2
     assert batch_avg["mrr"] == 0.75        # (1.0 + 0.5) / 2
+
