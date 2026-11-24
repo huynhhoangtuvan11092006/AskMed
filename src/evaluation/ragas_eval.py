@@ -188,17 +188,16 @@ Respond strictly in JSON format as a list of integers: [1, 0, 1, ...]"""
                 try:
                     ctx_vec = self.embed.embed_query(ctx[:1000])
                     sim = cosine_similarity(gt_vec, ctx_vec)
-                    # Semantic threshold: 0.55+ indicates clinically aligned context
-                    if sim >= 0.55:
+                    # Semantic threshold: 0.72+ ensures deep clinical alignment with ground truth
+                    if sim >= 0.72:
                         sem_rel = True
                 except Exception:
                     sem_rel = False
 
-            # A chunk is relevant if:
-            # 1. Semantic similarity >= 0.55 OR
-            # 2. Adaptive keyword overlap >= 12% OR
-            # 3. Contains at least 3 distinct ground-truth medical keywords
-            is_relevant = 1 if (sem_rel or overlap_ratio >= 0.12 or overlap >= 3) else 0
+            # Realistic medical relevance criteria (Plan A):
+            # 1. Deep semantic similarity >= 0.72 OR
+            # 2. Strict keyword overlap >= 20%
+            is_relevant = 1 if (sem_rel or overlap_ratio >= 0.20) else 0
             relevance_flags.append(is_relevant)
 
         total_relevant = sum(relevance_flags)

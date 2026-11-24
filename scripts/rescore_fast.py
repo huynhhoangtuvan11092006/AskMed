@@ -82,11 +82,11 @@ if __name__ == "__main__":
     pmid_map = load_pmid_texts()
     evaluator = RagasMedicalEvaluator()
 
-    # 1. Rescore all 26 questions
-    if Path("data/eval/results/benchmark_report_all_26.csv").exists():
+    # 1. Rescore 25 questions benchmark
+    if Path("data/eval/results/benchmark_report_all_25.csv").exists():
         rescore_csv(
-            "data/eval/results/benchmark_report_all_26.csv",
-            "data/eval/results/benchmark_summary_all_26.json",
+            "data/eval/results/benchmark_report_all_25.csv",
+            "data/eval/results/benchmark_summary_all_25.json",
             pmid_map,
             evaluator
         )
