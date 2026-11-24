@@ -54,5 +54,60 @@
       "42268153",
       "42120775"
     ]
+  },
+  {
+    "id": "MED_EVAL_056",
+    "topic": "diabetes",
+    "category": "symptoms_diagnosis",
+    "question": "What specific laboratory criteria distinguish Diabetic Ketoacidosis (DKA) from Hyperosmolar Hyperglycemic State (HHS), and what are the initial intravenous fluid and potassium replacement protocols?",
+    "ground_truth": "DKA is characterized by blood glucose > 250 mg/dL, arterial pH < 7.30, serum bicarbonate < 18 mEq/L, and positive serum or urine ketones with an elevated anion gap (> 10-12), whereas HHS features profound hyperglycemia (> 600 mg/dL), effective serum osmolality > 320 mOsm/kg, pH > 7.30, and minimal ketosis. Initial fluid resuscitation requires 1.0 to 1.5 L/hr of 0.9% normal saline during the first hour. Potassium replacement (20-30 mEq/L) must be initiated before or alongside insulin unless serum potassium is > 5.2 mEq/L; insulin is withheld if potassium is < 3.3 mEq/L.",
+    "expected_pmids": [
+      "43046917",
+      "42939624"
+    ]
+  },
+  {
+    "id": "MED_EVAL_057",
+    "topic": "hypertension",
+    "category": "treatment",
+    "question": "What first-line antihypertensive agents are recommended for gestational hypertension and preeclampsia, and which classes are strictly contraindicated due to fetal toxicity?",
+    "ground_truth": "First-line oral antihypertensive agents for gestational hypertension include labetalol, extended-release nifedipine, and methyldopa. Hydralazine and intravenous labetalol are preferred for acute severe hypertensive crises in pregnancy. ACE inhibitors, Angiotensin Receptor Blockers (ARBs), direct renin inhibitors, and mineralocorticoid receptor antagonists are strictly contraindicated throughout pregnancy due to risks of fetal renal dysgenesis, oligohydramnios, and neonatal mortality.",
+    "expected_pmids": [
+      "42660983",
+      "41956251"
+    ]
+  },
+  {
+    "id": "MED_EVAL_058",
+    "topic": "antibiotic_resistance",
+    "category": "treatment",
+    "question": "What is the recommended weight-based vancomycin dosing, target AUC/MIC ratio, and monitoring protocol for confirmed severe MRSA bloodstream infections?",
+    "ground_truth": "For serious MRSA infections, vancomycin is dosed at 15 to 20 mg/kg every 8 to 12 hours (with an initial loading dose of 25-30 mg/kg in critically ill patients). The primary therapeutic target is an AUC24/MIC ratio of 400 to 600 (assuming an MIC of 1.0 mg/L) rather than traditional trough concentrations of 15-20 mcg/mL, in order to maximize clinical cure while minimizing nephrotoxicity. AUC-guided monitoring via Bayesian dose-optimization software or two-point pharmacokinetic sampling is strongly recommended within the first 24 to 48 hours.",
+    "expected_pmids": [
+      "41861843",
+      "42031948"
+    ]
+  },
+  {
+    "id": "MED_EVAL_059",
+    "topic": "cancer_immunotherapy",
+    "category": "treatment",
+    "question": "What clinical grading criteria and immunosuppressive escalation ladder define the management of immune-mediated checkpoint inhibitor colitis?",
+    "ground_truth": "Immune-mediated colitis is graded based on stool frequency over baseline: Grade 1 (<4 stools/day), Grade 2 (4-6 stools/day), Grade 3 (>=7 stools/day, severe abdominal pain, incontinence), and Grade 4 (life-threatening perforation or toxic megacolon). Grade 1 is managed symptomatically while withholding or continuing ICI. Grade 2 requires temporary ICI suspension and oral prednisone 1 mg/kg/day. Grade 3-4 mandates permanent ICI cessation, hospitalization, and intravenous methylprednisolone 1-2 mg/kg/day. If symptoms are refractory to high-dose corticosteroids after 48-72 hours, early escalation to biologics (infliximab 5-10 mg/kg or vedolizumab) is recommended.",
+    "expected_pmids": [
+      "42734125",
+      "42881290"
+    ]
+  },
+  {
+    "id": "MED_EVAL_060",
+    "topic": "covid_19",
+    "category": "treatment",
+    "question": "What are the specific clinical indications, timing windows, and renal dosing considerations for remdesivir in hospitalized COVID-19 patients?",
+    "ground_truth": "Remdesivir is indicated for hospitalized adults and children with COVID-19 with pneumonia requiring supplemental oxygen, initiated ideally within 7 to 10 days of symptom onset. The standard regimen is a 200 mg intravenous loading dose on day 1 followed by 100 mg daily for a total of 5 days (extendable to 10 days if requiring mechanical ventilation). In patients with severe renal impairment (eGFR < 30 mL/min/1.73m2 or end-stage kidney disease on dialysis), remdesivir formulation contains sulfobutylether-beta-cyclodextrin (SBECD), but recent clinical trials support its safe use without dose reduction after careful risk-benefit evaluation of accumulating SBECD.",
+    "expected_pmids": [
+      "42918451",
+      "42854129"
+    ]
   }
 ]
