@@ -1,0 +1,109 @@
+# ==============================================================================
+# Ask_Med: Production Docker Compose Orchestration
+# Architecture:
+#   1. ollama      : Local LLM Engine (llama3.1:8b & nomic-embed-text)
+#   2. askmed-api  : FastAPI REST & SSE Streaming Engine (ChromaDB + BM25 + Cross-Encoder)
+#   3. askmed-ui   : Streamlit Clinical Multi-page User Interface
+# Usage:
+#   docker compose up -d --build
+# ==============================================================================
+services:
+  # ----------------------------------------------------------------------------
+  # 1. Local LLM Service (Ollama)
+  # ----------------------------------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: askmed-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_ORIGINS=*
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:11434/api/tags || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - askmed-net
+
+  # ----------------------------------------------------------------------------
+  # 2. FastAPI Backend & Ingestion API
+  # ----------------------------------------------------------------------------
+  askmed-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: askmed-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - PORT=8000
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./data:/app/data
+      - ./configs:/app/configs:ro
+    depends_on:
+      ollama:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - askmed-net
+
+  # ----------------------------------------------------------------------------
+  # 3. Streamlit Multi-Page Web Frontend
+  # ----------------------------------------------------------------------------
+  askmed-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.ui
+    container_name: askmed-ui
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE_URL=http://askmed-api:8000
+      - OLLAMA_HOST=http://ollama:11434
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+      - STREAMLIT_SERVER_HEADLESS=true
+    volumes:
+      - ./data:/app/data:ro
+      - ./configs:/app/configs:ro
+    depends_on:
+      askmed-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8501/_stcore/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      - askmed-net
+
+# ------------------------------------------------------------------------------
+# Persistent Storage Volumes
+# ------------------------------------------------------------------------------
+volumes:
+  ollama_data:
+    name: askmed_ollama_data
+
+# ------------------------------------------------------------------------------
+# Isolated Bridge Network
+# ------------------------------------------------------------------------------
+networks:
+  askmed-net:
+    name: askmed-network
+    driver: bridge

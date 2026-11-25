@@ -1,0 +1,25 @@
+# ==============================================================================
+# Ask_Med: Docker Compose GPU Acceleration Override
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d --build
+# ==============================================================================
+services:
+  # Enable NVIDIA GPU passthrough for Ollama LLM and Embeddings
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # Enable NVIDIA GPU passthrough for Cross-Encoder Reranker if CUDA available
+  askmed-api:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
