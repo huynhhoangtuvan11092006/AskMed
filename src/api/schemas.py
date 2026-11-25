@@ -263,3 +263,4 @@ class HealthResponse(BaseModel):
         description="AskMed API software version",
         examples=["1.0.0"]
     )
+

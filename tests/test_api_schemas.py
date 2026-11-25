@@ -120,3 +120,4 @@ def test_stats_and_health_response():
     )
     assert health.status == "ok"
     assert health.version == "1.0.0"
+
