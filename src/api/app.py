@@ -306,9 +306,30 @@ async def ask_medical_query(request: QueryRequest):
                 for token in token_iter:
                     yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
                 
-                # Emit completion event with metadata
-                citations = meta.get("citations", [])
-                yield f"data: {json.dumps({'type': 'done', 'citations': citations})}\n\n"
+                # Emit completion event with metadata and evidence contexts
+                passages = meta.get("top_passages", [])
+                extracted_citations = []
+                contexts_list = []
+                for p in passages:
+                    pmid_val = str(p.get("pmid") or p.get("metadata", {}).get("pmid", ""))
+                    chunk_id = str(p.get("chunk_id") or p.get("metadata", {}).get("chunk_id", ""))
+                    txt = p.get("text", "") or p.get("metadata", {}).get("text", "")
+                    score = p.get("rerank_score") or p.get("score")
+                    contexts_list.append({
+                        "pmid": pmid_val,
+                        "chunk_id": chunk_id,
+                        "text": txt,
+                        "score": float(score) if score is not None else None
+                    })
+                    if pmid_val and pmid_val not in [c["pmid"] for c in extracted_citations]:
+                        extracted_citations.append({
+                            "pmid": pmid_val,
+                            "title": p.get("metadata", {}).get("title", f"PubMed Article {pmid_val}"),
+                            "url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid_val}/",
+                            "journal": p.get("metadata", {}).get("journal", "")
+                        })
+
+                yield f"data: {json.dumps({'type': 'done', 'citations': extracted_citations, 'contexts': contexts_list, 'is_grounded': True})}\n\n"
 
             return StreamingResponse(
                 event_generator(),
