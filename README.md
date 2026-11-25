@@ -1,6 +1,6 @@
 # Ask_Med: Hệ Thống Hỏi - Đáp Y Học Chứng Cứ Dựa Trên PubMed
 
-Hệ thống Hỏi - Đáp Y Khoa theo chuẩn Y học Chứng cứ (Evidence-Based Medicine). Mô hình kết hợp truy xuất đa tầng (ChromaDB + BM25 + Cross-Encoder Reranker) và mô hình ngôn ngữ `llama3.1:8b` chạy cục bộ trên Ollama, trả lời dựa trên kho dữ liệu 620 bài báo khoa học từ PubMed NCBI và tự động gắn siêu liên kết trích dẫn `[PMID: ...]`.
+Hệ thống Hỏi - Đáp Y Khoa theo chuẩn Y học Chứng cứ (Evidence-Based Medicine). Mô hình kết hợp truy xuất đa tầng (ChromaDB + BM25 + Cross-Encoder Reranker) và mô hình ngôn ngữ `llama3.1:8b` chạy cục bộ trên Ollama, trả lời dựa trên kho dữ liệu 620 bài báo khoa học từ PubMed NCBI và tự động gắn trích dẫn `[PMID: ...]`.
 
 ---
 
@@ -41,19 +41,19 @@ Câu hỏi lâm sàng
 
 ---
 
-## 2. Tính Năng Cốt Lõi
+## 2. Các Tính Năng Cốt Lõi
 
-* **Tìm kiếm kết hợp (Hybrid Search)** -- kết hợp tìm kiếm ngữ nghĩa ChromaDB (`nomic-embed-text`) và tìm kiếm từ khóa chính xác BM25 qua thuật toán dung hợp Reciprocal Rank Fusion ($k=60$).
-* **Thẩm định tương quan (Cross-Encoder Reranking)** -- mô hình `ms-marco-MiniLM-L-6-v2` chấm điểm tương quan từng cặp câu hỏi - tài liệu, giữ lại 5 đoạn văn bản phù hợp nhất.
-* **Trích dẫn minh bạch (PMID Citations)** -- mọi tuyên bố y tế đều được liên kết trực tiếp với bài báo gốc trên PubMed (`https://pubmed.ncbi.nlm.nih.gov/<pmid>/`).
-* **Cơ chế chống ảo giác (Strict Grounding Guard)** -- hệ thống chỉ trả lời dựa trên tài liệu được cung cấp, tự động từ chối nếu không có bằng chứng khoa học trong kho dữ liệu.
-* **Xử lý thời gian thực (FastAPI & Streaming)** -- API backend hỗ trợ Server-Sent Events (SSE) giúp phản hồi từng từ mượt mà trên giao diện.
-* **Giao diện đa trang (Streamlit UI)** -- gồm khung chat lâm sàng, bảng phân tích hiệu năng RAGAs và trang quản trị tra cứu 620 bài báo.
-* **Vận hành cục bộ (Local & Private)** -- chạy hoàn toàn trên máy chủ nội bộ qua Ollama, bảo mật tuyệt đối dữ liệu y tế.
+* **Tìm kiếm kết hợp (Hybrid Search):** Kết hợp tìm kiếm ngữ nghĩa ChromaDB (`nomic-embed-text`) và tìm kiếm từ khóa chính xác BM25 qua thuật toán Reciprocal Rank Fusion (RRF, $k=60$).
+* **Thẩm định tương quan (Cross-Encoder Reranking):** Mô hình `ms-marco-MiniLM-L-6-v2` chấm điểm tương quan từng cặp câu hỏi - tài liệu, giữ lại 5 đoạn văn bản phù hợp nhất.
+* **Trích dẫn minh bạch (PMID Citations):** Mọi tuyên bố y tế đều được liên kết trực tiếp với bài báo gốc trên PubMed (`https://pubmed.ncbi.nlm.nih.gov/<pmid>/`).
+* **Cơ chế chống ảo giác (Strict Grounding Guard):** Hệ thống chỉ trả lời dựa trên tài liệu được cung cấp, tự động từ chối nếu không có bằng chứng khoa học trong kho dữ liệu.
+* **Xử lý thời gian thực (FastAPI & Streaming):** Backend hỗ trợ Server-Sent Events (SSE) giúp phản hồi từng từ mượt mà trên giao diện người dùng.
+* **Giao diện trực quan (Streamlit UI):** Khung chat lâm sàng, bảng phân tích hiệu năng RAGAs và trang quản trị kho dữ liệu 620 bài báo.
+* **Vận hành cục bộ (Local & Private):** Chạy hoàn toàn trên máy chủ nội bộ qua Ollama, bảo mật dữ liệu y tế.
 
 ---
 
-## 3. Các Kịch Bản Kiểm Thử Thực Tế
+## 3. Các Kịch Bản Kiểm Thử
 
 ![Kết quả thực nghiệm](docs/images/demo_results.png)
 
@@ -76,26 +76,11 @@ Câu hỏi lâm sàng
 * **Diễn biến:**
   * Lượt 1: Hệ thống đối chiếu toàn bộ kho 620 bài báo, xác định không có dữ liệu chứng thực.
   * Lượt 2: Thay vì tự suy đoán hoặc bịa đặt liều dùng, hệ thống từ chối xác nhận: *"Không tìm thấy bằng chứng khoa học nào trong kho dữ liệu PubMed NCBI chứng minh phác đồ này có hiệu quả."*
-* **Kết quả:** Đèn báo chuyển sang cảnh báo vàng (Ungrounded/Refused), ngăn chặn phát tán thông tin sai lệch.
+* **Kết quả:** Đèn trạng thái chuyển sang cảnh báo vàng (Ungrounded/Refused), ngăn chặn phát tán thông tin sai lệch.
 
 ---
 
-## 4. Kết Quả Đánh Giá RAGAs
-
-Kết quả kiểm thử thực nghiệm trên 25 câu hỏi chuẩn ([data/eval/results/benchmark_report.csv](data/eval/results/benchmark_report.csv)):
-
-| Chỉ Số Đánh Giá | Ngưỡng Yêu Cầu | Kết Quả Đạt Được | Trạng Thái |
-| :--- | :---: | :---: | :---: |
-| **Context Recall** | >= 80.0% | **96.33%** | Bao phủ đầy đủ bằng chứng y khoa |
-| **Answer Relevancy** | >= 85.0% | **96.10%** | Trả lời đúng trọng tâm câu hỏi |
-| **RAGAs Composite** | >= 80.0% | **91.56%** | Điểm chất lượng tổng thể xuất sắc |
-| **Faithfulness** | >= 85.0% | **88.32%** | Trung thực, không bịa đặt |
-| **Context Precision** | >= 75.0% | **85.48%** | Đoạn sau Rerank có độ liên quan cao |
-| **Grounding Rate** | 100.0% | **100.0% (25/25)** | 100% câu hỏi có trích dẫn PubMed |
-
----
-
-## 5. Hướng Dẫn Cài Đặt & Khởi Động
+## 4. Hướng Dẫn Cài Đặt và Chạy Ứng Dụng
 
 ### Cách 1: Khởi động bằng Docker Compose (Khuyên dùng)
 
@@ -118,12 +103,10 @@ Dừng hệ thống:
 docker compose down
 ```
 
----
-
 ### Cách 2: Chạy Cục Bộ (Local Python)
 
 ```bash
-# 1. Cài đặt thư viện dependencies
+# 1. Cài đặt thư viện phụ thuộc
 pip install -r requirements.txt
 
 # 2. Khởi động Backend và Frontend
@@ -139,7 +122,7 @@ python scripts/demo_runner.py
 
 ---
 
-## 6. Cấu Trúc Dự Án Tinh Gọn
+## 5. Cấu Trúc Dự Án
 
 ```plaintext
 Ask_Med/
