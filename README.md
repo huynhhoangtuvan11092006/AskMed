@@ -66,11 +66,14 @@ Câu hỏi người dùng
 ![Kết quả thực nghiệm](docs/images/demo_results.png)
 
 ### Kịch bản 1: Tra cứu cơ chế tác dụng của thuốc
+
+![Minh chứng Kịch bản 1](docs/images/demo_scenario_1.jpg)
+
 * **Tình huống:** Cần tìm hiểu cơ chế phân tử của Metformin trong việc ức chế gan sản sinh glucose.
 * **Diễn biến:**
-  * Lượt 1: Hệ thống tìm kiếm các đoạn văn bản liên quan đến dược lý học và tân tạo đường từ kho dữ liệu.
-  * Lượt 2: Phân tích và đưa ra giải thích: Metformin ức chế quá trình tân tạo glucose ở gan (`gluconeogenesis`), đồng thời ức chế sự hấp thụ glucose ở ruột, hỗ trợ giảm HbA1c và lipid máu.
-* **Kết quả:** Trích dẫn chính xác các bài báo khoa học thực tế `[PMID: 42864845]` và `[PMID: 43012773]`.
+  * Lượt 1: Hệ thống tìm kiếm và chọn lọc các đoạn văn bản dược lý liên quan từ kho dữ liệu PubMed (Top-K = 5).
+  * Lượt 2: Mô hình phân tích và giải thích: Metformin ức chế quá trình tạo glucose ở gan (`gluconeogenesis`), giảm hấp thụ glucose ở ruột [PMID: 42864845] và cải thiện độ nhạy insulin [PMID: 43012773]. Hệ thống kèm theo lưu ý rõ ràng về phạm vi bằng chứng thực tế của tài liệu chứ không tự ý suy diễn.
+* **Kết quả:** Trích dẫn chính xác 5 bài báo khoa học thực tế (`PMID: 42986015`, `43036268`, `42835393`, `43012773`, `42864845`), đèn trạng thái hiển thị `Bằng chứng xác thực (Grounded)`.
 
 ### Kịch bản 2: Cảnh báo chống chỉ định với bệnh nhân suy thận
 * **Tình huống:** Bệnh nhân suy thận mạn có mức lọc cầu thận giảm sâu (`eGFR < 30 mL/phút`).
