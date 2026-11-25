@@ -19,9 +19,11 @@ import pickle
 import time
 from typing import Any, Dict, Iterator, List, Optional
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, status
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from src.api.schemas import (
     CitationItem,
@@ -86,6 +88,112 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# -----------------------------------------------------------------------------
+# Step 6.3: HTTP Request Logging & Latency Tracking Middleware
+# -----------------------------------------------------------------------------
+@app.middleware("http")
+async def log_and_time_requests(request: Request, call_next):
+    """
+    Measures per-request execution duration, injects 'X-Process-Time' response header,
+    and logs request method, route path, client IP, and HTTP status code.
+    """
+    start_time = time.perf_counter()
+    method = request.method
+    path = request.url.path
+    client_ip = request.client.host if request.client else "unknown"
+
+    try:
+        response = await call_next(request)
+        process_time = time.perf_counter() - start_time
+        response.headers["X-Process-Time"] = f"{process_time:.4f}s"
+        logger.info(
+            f"API {method} {path} -> {response.status_code} ({process_time:.4f}s) [client={client_ip}]"
+        )
+        return response
+    except Exception as exc:
+        process_time = time.perf_counter() - start_time
+        logger.error(
+            f"API {method} {path} FAILED after {process_time:.4f}s: {exc}",
+            exc_info=True
+        )
+        raise exc
+
+
+# -----------------------------------------------------------------------------
+# Step 6.3: Centralized Exception Handlers (Standardized JSON error formatting)
+# -----------------------------------------------------------------------------
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """
+    Formats Pydantic 422 input validation errors into a clean, developer-friendly JSON format.
+    """
+    errors = []
+    for err in exc.errors():
+        field = " -> ".join(str(loc) for loc in err.get("loc", []))
+        msg = err.get("msg", "Invalid value")
+        errors.append({"field": field, "message": msg})
+
+    logger.warning(f"Validation failed on {request.method} {request.url.path}: {errors}")
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={
+            "error": "Request Validation Failed",
+            "message": "The input payload did not meet validation constraints.",
+            "details": errors,
+            "status_code": 422,
+        },
+    )
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    """
+    Standardizes explicit HTTPException responses across all routes.
+    """
+    logger.warning(f"HTTP {exc.status_code} on {request.method} {request.url.path}: {exc.detail}")
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": "HTTP Error",
+            "detail": exc.detail,
+            "status_code": exc.status_code,
+        },
+    )
+
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    """
+    Catches unhandled runtime exceptions. Specifically detects Ollama daemon connectivity
+    outages and converts them to a dedicated 503 Service Unavailable response.
+    """
+    err_str = str(exc)
+    logger.error(f"Unhandled exception on {request.method} {request.url.path}: {exc}", exc_info=True)
+
+    # Detect Ollama connectivity failure (daemon stopped or port unreachable)
+    if "Connection refused" in err_str or "Failed to connect to Ollama" in err_str or "11434" in err_str:
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={
+                "error": "Ollama LLM Service Unavailable",
+                "detail": (
+                    "Could not connect to the local Ollama LLM server (http://127.0.0.1:11434). "
+                    "Please ensure the Ollama daemon is running ('ollama serve')."
+                ),
+                "status_code": 503,
+            },
+        )
+
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "error": "Internal Server Error",
+            "detail": "An unexpected error occurred while processing the medical request.",
+            "status_code": 500,
+        },
+    )
 
 
 # Helper: Load PMID doc cache from BM25 index file
@@ -255,7 +363,13 @@ async def ask_medical_query(request: QueryRequest):
             latency_seconds=latency
         )
     except Exception as e:
+        err_msg = str(e)
         logger.error(f"Medical query failed: {e}", exc_info=True)
+        if "Connection refused" in err_msg or "Failed to connect to Ollama" in err_msg or "11434" in err_msg:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Ollama LLM Service is unavailable (http://127.0.0.1:11434). Please check that 'ollama serve' is running."
+            )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Inference pipeline execution error: {str(e)}"

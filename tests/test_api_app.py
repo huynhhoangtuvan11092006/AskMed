@@ -110,3 +110,37 @@ def test_query_endpoint_mocked():
             assert len(data["raw_contexts"]) == 1
             assert data["latency_seconds"] >= 0.0
 
+
+def test_process_time_header():
+    """Step 6.3: Verify X-Process-Time header is injected by middleware."""
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "x-process-time" in response.headers
+    assert response.headers["x-process-time"].endswith("s")
+
+
+def test_validation_error_custom_format():
+    """Step 6.3: Verify RequestValidationError returns standardized 422 JSON."""
+    payload = {"query": "ab"}  # Too short (< 3 chars)
+    response = client.post("/api/v1/query", json=payload)
+    assert response.status_code == 422
+    data = response.json()
+    assert data["error"] == "Request Validation Failed"
+    assert "details" in data
+    assert data["status_code"] == 422
+
+
+def test_ollama_outage_returns_503():
+    """Step 6.3: Verify connection failure to Ollama returns 503 Service Unavailable."""
+    mock_pipeline = MagicMock()
+    mock_pipeline.ask.side_effect = ConnectionRefusedError("Failed to connect to Ollama at http://127.0.0.1:11434")
+
+    with patch("src.api.app.get_pipeline", return_value=mock_pipeline):
+        with patch("src.api.app._pipeline_instance", mock_pipeline):
+            payload = {"query": "What is metformin?", "top_k": 5}
+            response = client.post("/api/v1/query", json=payload)
+            assert response.status_code == 503
+            data = response.json()
+            assert "Ollama" in data["detail"] or "503" in str(data)
+
+
