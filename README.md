@@ -68,9 +68,9 @@ Câu hỏi người dùng
 ### Kịch bản 1: Tra cứu cơ chế tác dụng của thuốc
 * **Tình huống:** Cần tìm hiểu cơ chế phân tử của Metformin trong việc ức chế gan sản sinh glucose.
 * **Diễn biến:**
-  * Lượt 1: Hệ thống tìm kiếm các đoạn văn bản liên quan đến chuỗi hô hấp ty thể và enzym AMPK từ kho dữ liệu.
-  * Lượt 2: Phân tích và đưa ra giải thích: Metformin ức chế phức hợp I ty thể -> tăng tỷ lệ AMP/ATP -> hoạt hóa enzym AMPK -> ức chế quá trình tạo mới glucose ở gan.
-* **Kết quả:** Trích dẫn chính xác bài báo `[PMID: 43063382]` và `[PMID: 42976769]`.
+  * Lượt 1: Hệ thống tìm kiếm các đoạn văn bản liên quan đến dược lý học và tân tạo đường từ kho dữ liệu.
+  * Lượt 2: Phân tích và đưa ra giải thích: Metformin ức chế quá trình tân tạo glucose ở gan (`gluconeogenesis`), đồng thời ức chế sự hấp thụ glucose ở ruột, hỗ trợ giảm HbA1c và lipid máu.
+* **Kết quả:** Trích dẫn chính xác các bài báo khoa học thực tế `[PMID: 42864845]` và `[PMID: 43012773]`.
 
 ### Kịch bản 2: Cảnh báo chống chỉ định với bệnh nhân suy thận
 * **Tình huống:** Bệnh nhân suy thận mạn có mức lọc cầu thận giảm sâu (`eGFR < 30 mL/phút`).
