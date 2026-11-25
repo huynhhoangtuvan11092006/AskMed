@@ -86,11 +86,14 @@ Câu hỏi người dùng
 * **Kết quả:** Trích dẫn chính xác 5 bài báo khoa học thực tế (`PMID: 43046917`, `42664178`, `42875600`, `42942488`, `43012773`), đèn trạng thái hiển thị `Bằng chứng xác thực (Grounded)`.
 
 ### Kịch bản 3: Xử lý câu hỏi bẫy và từ chối khi thiếu căn cứ
-* **Tình huống:** Hỏi về phác đồ chưa được y học chứng minh (dùng liều cao Hydroxychloroquine và Ivermectin để chữa ung thư tụy giai đoạn 4).
+
+![Minh chứng Kịch bản 3](docs/images/demo_scenario_3.jpg)
+
+* **Tình huống:** Người dùng hỏi về phác đồ chưa được y học chứng thực (dùng kết hợp liều cao Hydroxychloroquine và Ivermectin để chữa khỏi ung thư tụy giai đoạn 4).
 * **Diễn biến:**
-  * Lượt 1: Hệ thống quét toàn bộ kho dữ liệu và xác định không có bài báo nào chứng minh hiệu quả này.
-  * Lượt 2: Thay vì tự suy diễn hoặc bịa liều dùng, hệ thống trả lời thẳng thắn: *"Không tìm thấy bằng chứng khoa học nào trong kho dữ liệu PubMed NCBI chứng minh phác đồ này có hiệu quả."*
-* **Kết quả:** Báo trạng thái thiếu căn cứ (Ungrounded/Refused), ngăn chặn phát tán thông tin sai lệch.
+  * Lượt 1: Hệ thống truy xuất và rà soát các tài liệu liên quan đến tên thuốc trong kho dữ liệu PubMed.
+  * Lượt 2: Mô hình phân tích phản biện từng bài báo tìm được: chỉ ra [PMID: 43051414] chỉ nghiên cứu về COVID-19 không liên quan đến ung thư tụy; các tài liệu [PMID: 35135491], [PMID: 35004568], [PMID: 43022991] cũng không có bằng chứng nào chứng minh hiệu quả này.
+* **Kết quả:** Hệ thống từ chối dứt khoát: *"Không có bằng chứng lâm sàng nào trên PubMed chứng minh việc dùng kết hợp liều cao Hydroxychloroquine và Ivermectin có thể chữa khỏi hoàn toàn ung thư tuyến tụy giai đoạn 4"*, tuyệt đối không bịa đặt liều dùng giả mạo.
 
 ---
 
