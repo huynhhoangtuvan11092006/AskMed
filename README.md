@@ -97,14 +97,14 @@ Câu hỏi người dùng
 
 Kết quả kiểm thử tự động trên bộ 25 câu hỏi lâm sàng chuẩn ([data/eval/results/benchmark_report.csv](data/eval/results/benchmark_report.csv)):
 
-| Chỉ Số Đánh Giá | Ngưỡng Yêu Cầu | Kết Quả Đạt Được | Đánh Giá Chuyên Môn |
-| :--- | :---: | :---: | :--- |
-| **Context Recall** | >= 80.0% | **96.33%** | Bao phủ đầy đủ các bằng chứng y khoa cần thiết |
-| **Answer Relevancy** | >= 85.0% | **96.10%** | Câu trả lời đi thẳng vào trọng tâm câu hỏi |
-| **RAGAs Composite** | >= 80.0% | **91.56%** | Điểm chất lượng tổng thể mức xuất sắc |
-| **Faithfulness** | >= 85.0% | **88.32%** | Tuyệt đối trung thực, không bịa đặt thông tin |
-| **Context Precision** | >= 75.0% | **85.48%** | Các đoạn văn bản sau Rerank có độ liên quan rất cao |
-| **Grounding Rate** | 100.0% | **100.0% (25/25)** | 100% câu hỏi đều có mã trích dẫn PubMed |
+| Chỉ Số Đánh Giá | Kết Quả Đạt Được |
+| :--- | :---: |
+| **Context Recall** | **96.33%** |
+| **Answer Relevancy** | **96.10%** |
+| **RAGAs Composite** | **91.56%** |
+| **Faithfulness** | **88.32%** |
+| **Context Precision** | **85.48%** |
+| **Grounding Rate** | **100.0% (25/25)** |
 
 ---
 
