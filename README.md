@@ -15,11 +15,11 @@ AskMed là hệ thống hỏi đáp y khoa dựa trên y học chứng cứ (Evi
 ## 1. Kiến Trúc Hệ Thống
 
 ```text
-Câu hỏi người dùng
+User Question
        │
        ▼
 +---------------------+     +--------------------+
-|  ChromaDB (Vector)  |     |   BM25 (Từ khóa)   |
+|  ChromaDB (Vector)  |     |   BM25 (Keyword)   |
 |  nomic-embed-text   |     |     rank_bm25      |
 +----------+----------+     +---------+----------+
            │                          │
@@ -27,24 +27,24 @@ Câu hỏi người dùng
                         │
                         ▼
            +--------------------------+
-           |   Dung hợp danh sách     |
-           |     (RRF Fusion k=60)    |
+           |  Reciprocal Rank Fusion  |
+           |        (RRF k=60)        |
            +------------+-------------+
                         │
                         ▼
            +--------------------------+
-           |      Xếp hạng lại        |
-           | ms-marco-MiniLM-L-6-v2   |
+           |  Cross-Encoder Reranker  |
+           |  ms-marco-MiniLM-L-6-v2  |
            +------------+-------------+
                         │
                         ▼
            +--------------------------+
-           |     Tổng hợp câu trả lời |
+           |      LLM Generation      |
            |   llama3.1:8b (Ollama)   |
            +------------+-------------+
                         │
                         ▼
-           Câu trả lời trích dẫn [PMID: xxxxx]
+           Cited Answer [PMID: xxxxx]
 ```
 
 ---
