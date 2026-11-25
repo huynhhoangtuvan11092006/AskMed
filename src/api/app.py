@@ -204,9 +204,24 @@ def _get_pmid_cache() -> Dict[str, Dict[str, Any]]:
     try:
         with open(bm25_path, "rb") as f:
             data = pickle.load(f)
-        return data.get("pmid_to_doc", {})
+        p2d = data.get("pmid_to_doc", {})
+        if p2d:
+            return p2d
+        # Build cache from chunks if pmid_to_doc is not populated
+        cache = {}
+        for c in data.get("chunks", []):
+            pmid = str(c.get("pmid", "")).strip()
+            if pmid and pmid not in cache:
+                cache[pmid] = {
+                    "title": c.get("title", ""),
+                    "journal": c.get("journal", ""),
+                    "pub_year": c.get("pub_year", ""),
+                    "authors": c.get("authors", []),
+                    "text": c.get("text", "") or c.get("abstract", ""),
+                }
+        return cache
     except Exception as e:
-        logger.warning(f"Could not load pmid_to_doc from bm25.pkl: {e}")
+        logger.warning(f"Could not load pmid cache: {e}")
         return {}
 
 
