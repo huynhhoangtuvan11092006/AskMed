@@ -63,8 +63,6 @@ Câu hỏi người dùng
 
 ## 3. Các Kịch Bản Kiểm Thử
 
-![Kết quả thực nghiệm](docs/images/demo_results.png)
-
 ### Kịch bản 1: Tra cứu cơ chế tác dụng của thuốc
 
 ![Minh chứng Kịch bản 1](docs/images/demo_scenario_1.jpg)
