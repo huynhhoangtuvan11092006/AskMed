@@ -14,38 +14,9 @@ AskMed là hệ thống hỏi đáp y khoa dựa trên y học chứng cứ (Evi
 
 ## 1. Kiến Trúc Hệ Thống
 
-```text
-User Question
-       │
-       ▼
-+---------------------+     +--------------------+
-|  ChromaDB (Vector)  |     |   BM25 (Keyword)   |
-|  nomic-embed-text   |     |     rank_bm25      |
-+----------+----------+     +---------+----------+
-           │                          │
-           +------------+-------------+
-                        │
-                        ▼
-           +--------------------------+
-           |  Reciprocal Rank Fusion  |
-           |        (RRF k=60)        |
-           +------------+-------------+
-                        │
-                        ▼
-           +--------------------------+
-           |  Cross-Encoder Reranker  |
-           |  ms-marco-MiniLM-L-6-v2  |
-           +------------+-------------+
-                        │
-                        ▼
-           +--------------------------+
-           |      LLM Generation      |
-           |   llama3.1:8b (Ollama)   |
-           +------------+-------------+
-                        │
-                        ▼
-           Cited Answer [PMID: xxxxx]
-```
+<p align="center">
+  <img src="docs/images/architecture_diagram.png" alt="Kiến trúc hệ thống AskMed" width="550" />
+</p>
 
 ---
 
@@ -65,7 +36,7 @@ User Question
 
 ### Kịch bản 1: Tra cứu cơ chế tác dụng của thuốc
 
-![Minh chứng Kịch bản 1](docs/images/demo_scenario_1.jpg)
+![Minh chứng Kịch bản 1](docs/images/demo_scenario_1.png)
 
 * **Tình huống:** Cần tìm hiểu cơ chế phân tử của Metformin trong việc ức chế gan sản sinh glucose.
 * **Diễn biến:**
@@ -75,7 +46,7 @@ User Question
 
 ### Kịch bản 2: Cảnh báo chống chỉ định với bệnh nhân suy thận
 
-![Minh chứng Kịch bản 2](docs/images/demo_scenario_2.jpg)
+![Minh chứng Kịch bản 2](docs/images/demo_scenario_2.png)
 
 * **Tình huống:** Bệnh nhân suy thận mạn có mức lọc cầu thận giảm sâu (`eGFR < 30 mL/phút/1.73m²`).
 * **Diễn biến:**
@@ -85,7 +56,7 @@ User Question
 
 ### Kịch bản 3: Xử lý câu hỏi bẫy và từ chối khi thiếu căn cứ
 
-![Minh chứng Kịch bản 3](docs/images/demo_scenario_3.jpg)
+![Minh chứng Kịch bản 3](docs/images/demo_scenario_3.png)
 
 * **Tình huống:** Người dùng hỏi về phác đồ chưa được y học chứng thực (dùng kết hợp liều cao Hydroxychloroquine và Ivermectin để chữa khỏi ung thư tụy giai đoạn 4).
 * **Diễn biến:**
