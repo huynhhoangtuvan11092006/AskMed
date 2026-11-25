@@ -179,7 +179,7 @@ def query_backend_stream(
     }
 
     try:
-        with requests.post(url, json=payload, stream=True, timeout=120) as resp:
+        with requests.post(url, json=payload, stream=True, timeout=(15, 300)) as resp:
             if resp.status_code != 200:
                 raise RuntimeError(f"HTTP {resp.status_code}: {resp.text}")
 
@@ -194,6 +194,8 @@ def query_backend_stream(
                     ev_type = event.get("type")
                     if ev_type == "token":
                         yield ("token", event.get("content", ""))
+                    elif ev_type == "ping":
+                        continue
                     elif ev_type == "done":
                         yield ("done", event)
                 except json.JSONDecodeError:
@@ -204,7 +206,7 @@ def query_backend_stream(
 
 def query_backend_sync(
     query: str,
-    top_k: int = 5,
+    top_k: int = 3,
     include_raw_contexts: bool = True
 ) -> Dict[str, Any]:
     """
@@ -217,7 +219,7 @@ def query_backend_sync(
         "include_raw_contexts": include_raw_contexts,
         "stream": False
     }
-    resp = requests.post(url, json=payload, timeout=120)
+    resp = requests.post(url, json=payload, timeout=(15, 300))
     if resp.status_code != 200:
         raise RuntimeError(f"HTTP {resp.status_code}: {resp.text}")
     return resp.json()
@@ -307,7 +309,7 @@ with st.sidebar:
         "Số đoạn trích dẫn (Top-K Chunks):",
         min_value=1,
         max_value=10,
-        value=5,
+        value=3,
         step=1,
         help="Số lượng đoạn văn bản được Cross-Encoder Reranker chấm điểm cao nhất gửi tới LLM."
     )

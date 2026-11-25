@@ -303,6 +303,8 @@ async def ask_medical_query(request: QueryRequest):
             )
 
             def event_generator() -> Iterator[str]:
+                # Send immediate heartbeat so HTTP stream opens at once and avoids read timeouts
+                yield f"data: {json.dumps({'type': 'ping'})}\n\n"
                 for token in token_iter:
                     yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
                 
