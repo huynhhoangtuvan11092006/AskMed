@@ -76,11 +76,14 @@ Câu hỏi người dùng
 * **Kết quả:** Trích dẫn chính xác 5 bài báo khoa học thực tế (`PMID: 42986015`, `43036268`, `42835393`, `43012773`, `42864845`), đèn trạng thái hiển thị `Bằng chứng xác thực (Grounded)`.
 
 ### Kịch bản 2: Cảnh báo chống chỉ định với bệnh nhân suy thận
-* **Tình huống:** Bệnh nhân suy thận mạn có mức lọc cầu thận giảm sâu (`eGFR < 30 mL/phút`).
+
+![Minh chứng Kịch bản 2](docs/images/demo_scenario_2.jpg)
+
+* **Tình huống:** Bệnh nhân suy thận mạn có mức lọc cầu thận giảm sâu (`eGFR < 30 mL/phút/1.73m²`).
 * **Diễn biến:**
-  * Lượt 1: Hệ thống nhận diện chỉ số eGFR < 30 mL/phút từ câu hỏi.
-  * Lượt 2: Đưa ra cảnh báo chống chỉ định dùng thuốc do thận giảm thải trừ, có nguy cơ gây biến chứng nguy hiểm là nhiễm toan lactic (MALA).
-* **Kết quả:** Khuyên dừng thuốc và dẫn chứng ca bệnh thực tế từ bài báo `[PMID: 43063382]`.
+  * Lượt 1: Hệ thống nhận diện chỉ số định lượng lâm sàng eGFR < 30 mL/phút và truy xuất các nghiên cứu đoàn hệ về bệnh thận mạn (CKD).
+  * Lượt 2: Mô hình đưa ra cảnh báo khẳng định **chống chỉ định dùng Metformin** [PMID: 42942488], đồng thời phân tích nguy cơ các biến cố bất lợi nghiêm trọng về thận và tim mạch (MAKE - Major Adverse Kidney Events và MACE - Major Adverse Cardiovascular Events).
+* **Kết quả:** Trích dẫn chính xác 5 bài báo khoa học thực tế (`PMID: 43046917`, `42664178`, `42875600`, `42942488`, `43012773`), đèn trạng thái hiển thị `Bằng chứng xác thực (Grounded)`.
 
 ### Kịch bản 3: Xử lý câu hỏi bẫy và từ chối khi thiếu căn cứ
 * **Tình huống:** Hỏi về phác đồ chưa được y học chứng minh (dùng liều cao Hydroxychloroquine và Ivermectin để chữa ung thư tụy giai đoạn 4).
