@@ -1,19 +1,17 @@
-# Ask_Med: Production-Grade Medical Literature RAG System
+# Ask_Med: Hệ Thống Hỏi - Đáp Y Học Chứng Cứ Dựa Trên PubMed
 
-Evidence-based medical Q&A grounded in PubMed scientific papers. Hybrid retrieval (vector + BM25), cross-encoder reranking, RAGAs evaluation, and local inference via Ollama.
-
-> **Disclaimer:** This system is for educational and research purposes only. It does NOT constitute medical advice.
+Hệ thống Hỏi - Đáp Y Khoa theo chuẩn Y học Chứng cứ (Evidence-Based Medicine). Mô hình kết hợp truy xuất đa tầng (ChromaDB + BM25 + Cross-Encoder Reranker) và mô hình ngôn ngữ `llama3.1:8b` chạy cục bộ trên Ollama, trả lời dựa trên kho dữ liệu 620 bài báo khoa học từ PubMed NCBI và tự động gắn siêu liên kết trích dẫn `[PMID: ...]`.
 
 ---
 
-## Architecture
+## 1. Kiến Trúc Hệ Thống
 
 ```text
-User Question
+Câu hỏi lâm sàng
       │
       ▼
 +---------------------+     +--------------------+
-|  ChromaDB (vector)  |     |   BM25 (keyword)   |
+|  ChromaDB (Vector)  |     |   BM25 (Từ khóa)   |
 |  nomic-embed-text   |     |     rank_bm25      |
 +----------+----------+     +---------+----------+
            │                          │
@@ -33,282 +31,160 @@ User Question
                         │
                         ▼
            +--------------------------+
-           |      LLM Generation      |
+           |     Tổng hợp câu trả lời |
            |   llama3.1:8b (Ollama)   |
            +------------+-------------+
                         │
                         ▼
-           Cited Answer [PMID: xxxxx]
+           Câu trả lời trích dẫn [PMID: xxxxx]
 ```
 
 ---
 
-## Features
+## 2. Tính Năng Cốt Lõi
 
-* **Hybrid Search** -- vector similarity (ChromaDB `nomic-embed-text`) + BM25 keyword matching fused with Reciprocal Rank Fusion ($k=60$).
-* **Cross-Encoder Reranking** -- `ms-marco-MiniLM-L-6-v2` reranks top candidates for high clinical precision.
-* **PMID Citations** -- every claim in the answer links back to a specific PubMed paper (`https://pubmed.ncbi.nlm.nih.gov/<pmid>/`).
-* **Strict Grounding Guard** -- system refuses unverified claims when evidence is absent in the knowledge base, preventing medical hallucination.
-* **RAGAs Evaluation** -- faithfulness, answer relevancy, context precision, and context recall evaluated on 25 clinical test cases.
-* **Custom Retrieval Metrics** -- hit rate, MRR, average rerank score, and grounding verification audit.
-* **FastAPI Backend** -- `/api/v1/query` (REST and SSE streaming), `/api/v1/health`, `/api/v1/ingest`, `/api/v1/paper/{pmid}`, `/api/v1/stats`.
-* **Streamlit UI** -- multi-page clinical application with chat interface, evaluation dashboard, and data management.
-* **Fully Local & Private** -- runs entirely on local hardware via Ollama (no patient-adjacent data leaves your machine).
-* **Docker Containerized** -- complete 3-tier microservice architecture with GPU passthrough support.
+* **Tìm kiếm kết hợp (Hybrid Search)** -- kết hợp tìm kiếm ngữ nghĩa ChromaDB (`nomic-embed-text`) và tìm kiếm từ khóa chính xác BM25 qua thuật toán dung hợp Reciprocal Rank Fusion ($k=60$).
+* **Thẩm định tương quan (Cross-Encoder Reranking)** -- mô hình `ms-marco-MiniLM-L-6-v2` chấm điểm tương quan từng cặp câu hỏi - tài liệu, giữ lại 5 đoạn văn bản phù hợp nhất.
+* **Trích dẫn minh bạch (PMID Citations)** -- mọi tuyên bố y tế đều được liên kết trực tiếp với bài báo gốc trên PubMed (`https://pubmed.ncbi.nlm.nih.gov/<pmid>/`).
+* **Cơ chế chống ảo giác (Strict Grounding Guard)** -- hệ thống chỉ trả lời dựa trên tài liệu được cung cấp, tự động từ chối nếu không có bằng chứng khoa học trong kho dữ liệu.
+* **Xử lý thời gian thực (FastAPI & Streaming)** -- API backend hỗ trợ Server-Sent Events (SSE) giúp phản hồi từng từ mượt mà trên giao diện.
+* **Giao diện đa trang (Streamlit UI)** -- gồm khung chat lâm sàng, bảng phân tích hiệu năng RAGAs và trang quản trị tra cứu 620 bài báo.
+* **Vận hành cục bộ (Local & Private)** -- chạy hoàn toàn trên máy chủ nội bộ qua Ollama, bảo mật tuyệt đối dữ liệu y tế.
 
 ---
 
-## Quick Start
+## 3. Các Kịch Bản Kiểm Thử Thực Tế
 
-### Prerequisites
+![Kết quả thực nghiệm](docs/images/demo_results.png)
 
-| Requirement | Purpose |
-| :--- | :--- |
-| **Python 3.11+** | Core runtime environment |
-| **[Ollama](https://ollama.ai/)** | Local LLM (`llama3.1:8b`) & Embeddings (`nomic-embed-text`) |
-| **Docker & Compose** | Containerized deployment (optional) |
-| **Git** | Source code management |
+### Kịch bản 1: Tra cứu cơ chế tác động dược lý (Pharmacology Mechanism)
+* **Tình huống:** Bác sĩ cần tra cứu cơ chế phân tử của Metformin trong ức chế tân tạo glucose ở gan.
+* **Diễn biến:**
+  * Lượt 1: Truy xuất tài liệu từ ChromaDB và BM25, Cross-Encoder chọn lọc đoạn văn bản về chuỗi hô hấp ty thể và enzym AMPK.
+  * Lượt 2: Hệ thống phân tích và giải thích: Metformin ức chế phức hợp I ty thể -> tăng tỷ lệ AMP/ATP -> hoạt hóa AMPK -> ức chế enzym tân tạo glucose (gluconeogenesis).
+* **Kết quả:** Trích dẫn thành công bài báo `[PMID: 43063382]` và `[PMID: 42976769]`.
 
-### 1. Clone and Install
+### Kịch bản 2: Cảnh báo an toàn & Chống chỉ định suy thận (Safety & Contraindications)
+* **Tình huống:** Bệnh nhân suy thận mạn với mức lọc cầu thận giảm sâu (`eGFR < 30 mL/phút`).
+* **Diễn biến:**
+  * Lượt 1: Hệ thống nhận diện thông số định lượng lâm sàng eGFR < 30 mL/phút từ câu hỏi.
+  * Lượt 2: Đưa ra cảnh báo chống chỉ định tuyệt đối do thuốc thải trừ qua thận; biến chứng nghiêm trọng nhất là Nhiễm toan Lactic (MALA - Metformin-Associated Lactic Acidosis).
+* **Kết quả:** Khuyến cáo ngừng thuốc và trích dẫn bài báo ca bệnh thực tế `[PMID: 43063382]`.
 
-```bash
-git clone https://github.com/huynhhoangtuvan11092006/AskMed.git
-cd AskMed
-
-# Option A: using Makefile
-make install
-
-# Option B: manual virtualenv setup
-python -m venv venv
-# Windows PowerShell:
-.\venv\Scripts\Activate.ps1
-# Linux/macOS:
-source venv/bin/activate
-
-pip install -r requirements.txt
-```
-
-### 2. Pull Ollama Models
-
-```bash
-ollama pull llama3.1:8b
-ollama pull nomic-embed-text
-```
-
-### 3. Start the Application
-
-```bash
-# Terminal 1: FastAPI Backend
-python -m uvicorn src.api.app:app --host 127.0.0.1 --port 8000 --reload
-
-# Terminal 2: Streamlit Frontend
-python -m streamlit run src/ui/app.py
-```
-
-* **Streamlit Web UI:** [http://localhost:8501](http://localhost:8501)
-* **API Documentation:** [http://localhost:8000/docs](http://localhost:8000/docs)
-* **Health Endpoint:** [http://localhost:8000/health](http://localhost:8000/health)
-
-### 4. Query via API
-
-```bash
-curl -X POST http://127.0.0.1:8000/api/v1/query \
-  -H "Content-Type: application/json" \
-  -d '{"query": "What is the molecular mechanism of action of metformin?", "top_k": 3}'
-```
+### Kịch bản 3: Xử lý bế tắc & Chống ảo giác với câu hỏi bẫy (Anti-Hallucination Stress-Test)
+* **Tình huống:** Nhập câu hỏi bẫy về phác đồ chưa được kiểm chứng khoa học (dùng kết hợp liều cao Hydroxychloroquine và Ivermectin chữa ung thư tụy giai đoạn 4).
+* **Diễn biến:**
+  * Lượt 1: Hệ thống đối chiếu toàn bộ kho 620 bài báo, xác định không có dữ liệu chứng thực.
+  * Lượt 2: Thay vì tự suy đoán hoặc bịa đặt liều dùng, hệ thống từ chối xác nhận: *"Không tìm thấy bằng chứng khoa học nào trong kho dữ liệu PubMed NCBI chứng minh phác đồ này có hiệu quả."*
+* **Kết quả:** Đèn báo chuyển sang cảnh báo vàng (Ungrounded/Refused), ngăn chặn phát tán thông tin sai lệch.
 
 ---
 
-## Screenshots
+## 4. Kết Quả Đánh Giá RAGAs
 
-| Page | Description |
-| :--- | :--- |
-| **Query (`1_Chat.py`)** | Clinical chat interface with cited answers, clickable PubMed badges, and expandable passage cards. |
-| **Evaluation (`2_Evaluation.py`)** | Interactive RAGAs benchmark dashboard with radar chart, topic breakdowns, and per-question inspector. |
-| **Data Management (`3_Data_Manage.py`)** | Article catalog (620 PMIDs), chunk token distribution, and live NCBI PubMed ingestion controls. |
-| **Overview (`app.py`)** | Multi-stage pipeline architecture visualizer, subsystem status probes, and legal guidance. |
+Kết quả kiểm thử thực nghiệm trên 25 câu hỏi chuẩn ([data/eval/results/benchmark_report.csv](data/eval/results/benchmark_report.csv)):
 
-![Evaluation Dashboard](docs/images/demo_results.png)
-
----
-
-## Evaluation Results
-
-Evaluated across **25 medical benchmark test cases** (Diabetes, Hypertension, Oncology, COVID-19) stored in [data/eval/results/benchmark_report.csv](data/eval/results/benchmark_report.csv):
-
-| Metric | Target | Ask_Med Score | Status |
+| Chỉ Số Đánh Giá | Ngưỡng Yêu Cầu | Kết Quả Đạt Được | Trạng Thái |
 | :--- | :---: | :---: | :---: |
-| **Context Recall** | $\ge 80.0\%$ | **96.33%** (0.96) | Excellent coverage |
-| **Answer Relevancy** | $\ge 85.0\%$ | **96.10%** (0.96) | High clinical relevance |
-| **RAGAs Composite** | $\ge 80.0\%$ | **91.56%** (0.92) | Outstanding overall quality |
-| **Faithfulness** | $\ge 85.0\%$ | **88.32%** (0.88) | Factually grounded |
-| **Context Precision** | $\ge 75.0\%$ | **85.48%** (0.85) | Exact match with CV target |
-| **Grounding Rate** | $100.0\%$ | **100.0% (25/25)** | Full PubMed citation linkage |
-| **Hit Rate@5** | -- | **60.00%** | Multi-passage retrieval |
-| **MRR** | -- | **0.4500** | Mean Reciprocal Rank |
-| **Avg Rerank Score** | -- | **-0.0155** | Cross-encoder logits |
-
-Run the evaluation suite:
-```bash
-python -m src.evaluation.eval_pipeline --benchmark data/eval/eval_dataset.json
-# or via Make:
-make eval
-```
-
-Results are saved to `data/eval/results/benchmark_report.csv` and viewable in the Streamlit Evaluation Dashboard.
+| **Context Recall** | >= 80.0% | **96.33%** | Bao phủ đầy đủ bằng chứng y khoa |
+| **Answer Relevancy** | >= 85.0% | **96.10%** | Trả lời đúng trọng tâm câu hỏi |
+| **RAGAs Composite** | >= 80.0% | **91.56%** | Điểm chất lượng tổng thể xuất sắc |
+| **Faithfulness** | >= 85.0% | **88.32%** | Trung thực, không bịa đặt |
+| **Context Precision** | >= 75.0% | **85.48%** | Đoạn sau Rerank có độ liên quan cao |
+| **Grounding Rate** | 100.0% | **100.0% (25/25)** | 100% câu hỏi có trích dẫn PubMed |
 
 ---
 
-## Tech Stack
+## 5. Hướng Dẫn Cài Đặt & Khởi Động
 
-| Layer | Technology | Why |
-| :--- | :--- | :--- |
-| **LLM (primary)** | Ollama `llama3.1:8b` | Runs locally, zero API cost, medical data stays private |
-| **Embeddings** | Ollama `nomic-embed-text` (768d) | High-quality open embeddings, fast CPU/GPU inference |
-| **Vector Store** | ChromaDB (persistent) | Embedded, persistent SQLite storage, native HNSW indexing |
-| **Sparse Retrieval** | `rank_bm25` | Lightweight BM25 catching exact lexical terms that embeddings miss |
-| **Fusion** | Reciprocal Rank Fusion ($k=60$) | Parameter-free merging of dense and sparse ranked lists |
-| **Reranker** | `cross-encoder/ms-marco-MiniLM-L-6-v2` | Lightweight (~80 MB) model, joint cross-attention, fast on CPU |
-| **Chunking** | Sentence-aware Token Chunker | 512 tokens / 128 overlap, respects clinical sentence boundaries |
-| **Data Source** | PubMed via Biopython Entrez | Authoritative biomedical literature, official NCBI API |
-| **API** | FastAPI + Uvicorn | Async, auto Swagger docs, Pydantic v2 validation, SSE streaming |
-| **UI** | Streamlit | Rapid clinical prototyping, interactive Plotly charts, session state |
-| **Evaluation** | RAGAs + Custom Metrics | Established RAG framework (Precision, Recall, Faithfulness, Relevancy) |
-| **Config** | YAML + Pydantic | Strongly typed configuration, environment variable overrides |
+### Cách 1: Khởi động bằng Docker Compose (Khuyên dùng)
 
----
-
-## Design Decisions
-
-### Why hybrid search (vector + BM25)?
-Vector search excels at semantic similarity (*"heart attack"* matches *"myocardial infarction"*) but can miss exact terms that matter in medicine -- drug names (Metformin, Paxlovid, Osimertinib), gene symbols (EGFR, T790M, C797S), and quantitative lab thresholds (`eGFR < 30`). BM25 catches these exact lexical matches. Combining both with Reciprocal Rank Fusion consistently outperforms either retriever alone on medical benchmarks without requiring weight tuning (RRF is parameter-free at $k=60$).
-
-### Why cross-encoder reranking?
-Bi-encoder retrieval (ChromaDB) is fast but approximate -- it computes query and document embeddings independently. A cross-encoder jointly attends to the query-document pair, giving significantly more accurate relevance scores. We retrieve a broad set (top-60 hybrid candidates, RRF down to top-20) and rerank down to top-5, getting the precision of a cross-encoder with the speed of bi-encoder retrieval. `ms-marco-MiniLM-L-6-v2` was chosen because it is only ~80 MB, runs on CPU in <100 ms per query, and performs well on passage reranking.
-
-### Why 512-token chunks with 128-token overlap?
-PubMed abstracts are typically 200-400 words. A 512-token chunk comfortably fits an entire abstract or a substantial section. The 128-token overlap ensures that sentences split across chunk boundaries are captured in at least one chunk, preventing information loss at boundaries. This is especially important for medical text where a clinical finding and its statistical significance may span a chunk boundary.
-
-### Why Ollama-first?
-Medical literature and clinical queries can be sensitive. Running the LLM locally via Ollama means no user queries ever leave the user's machine or local intranet. All inferences execute on local hardware, keeping everything private and offline-capable.
-
-### Why dict-based pipeline (not LangChain Documents)?
-The retrieval pipeline uses plain `list[dict]` with a text key throughout, rather than LangChain Document objects. This gives full control over metadata fields (PMID, title, journal, year, rerank scores, RRF scores) without fighting framework abstractions. It also simplifies serialization, testing (dicts are easy to construct in fixtures), and debugging.
-
----
-
-## Configuration
-
-All settings are configured in [configs/config.yaml](configs/config.yaml). Settings can be overridden via environment variables.
-
-| Setting | Default | Description |
-| :--- | :--- | :--- |
-| `models.ollama.llm_model` | `llama3.1:8b` | Primary Ollama generative model |
-| `models.ollama.embed_model` | `nomic-embed-text` | Ollama embedding model (768 dimensions) |
-| `models.ollama.base_url` | `http://127.0.0.1:11434` | Ollama daemon endpoint (overridable via `OLLAMA_HOST`) |
-| `models.ollama.temperature` | `0.0` | Deterministic sampling for clinical facts |
-| `models.reranker.model_name` | `cross-encoder/ms-marco-MiniLM-L-6-v2` | Cross-encoder reranker model |
-| `models.reranker.top_n` | `5` | Final evidence chunks passed to LLM |
-| `ingestion.chunk_size` | `512` | Token chunk size |
-| `ingestion.chunk_overlap` | `128` | Overlap between consecutive chunks |
-| `ingestion.min_abstract_words` | `30` | Minimum abstract word count filter |
-| `paths.chroma_db_dir` | `data/chroma_db` | Persistent ChromaDB storage path |
-| `paths.bm25_index_file` | `data/bm25_index/bm25.pkl` | Sparse BM25 serialized index file |
-
----
-
-## Project Structure
-
-```plaintext
-Ask_Med/
-├── configs/
-│   └── config.yaml              # Central system configuration
-├── data/
-│   ├── bm25_index/bm25.pkl      # Sparse BM25 keyword index (703 chunks)
-│   ├── chroma_db/               # ChromaDB persistent vector database (703 items)
-│   └── eval/
-│       ├── eval_dataset.json    # 25 medical benchmark test cases
-│       └── results/
-│           ├── benchmark_report.csv      # Detailed benchmark report
-│           └── benchmark_summary.json    # Aggregated benchmark metrics
-├── src/
-│   ├── api/
-│   │   ├── app.py               # FastAPI application with REST & SSE endpoints
-│   │   └── schemas.py           # Pydantic v2 data models
-│   ├── evaluation/
-│   │   ├── eval_pipeline.py     # End-to-end evaluation runner
-│   │   └── ragas_metrics.py     # Custom RAGAs metrics computation
-│   ├── generation/
-│   │   ├── citation_parser.py   # Regex PMID extractor and verification
-│   │   ├── llm_client.py        # Ollama LLM client wrapper
-│   │   ├── prompts.py           # Strict clinical system & user prompts
-│   │   └── rag_pipeline.py      # Core AskMedPipeline orchestrator
-│   ├── ingestion/
-│   │   ├── chunker.py           # Sentence-aware chunker (512 tokens / 128 overlap)
-│   │   ├── cleaner.py           # Abstract cleaning and validation
-│   │   ├── ingest_pipeline.py   # End-to-end ingestion pipeline
-│   │   └── pubmed_fetcher.py    # NCBI E-Utilities fetcher
-│   ├── retrieval/
-│   │   ├── bm25_search.py       # BM25 keyword retriever
-│   │   ├── hybrid_retriever.py  # Reciprocal Rank Fusion retriever (k=60)
-│   │   ├── reranker.py          # Cross-encoder reranker wrapper
-│   │   └── vector_search.py     # ChromaVectorStore wrapper
-│   └── ui/
-│       ├── app.py               # Streamlit main landing page
-│       └── pages/
-│           ├── 1_Chat.py        # Interactive clinical QA chat
-│           ├── 2_Evaluation.py  # RAGAs evaluation dashboard
-│           └── 3_Data_Manage.py # Knowledge base explorer & ingestion form
-├── docs/images/                 # Documentation and benchmark diagrams
-├── scripts/
-│   ├── demo_runner.py           # CLI runner for 5 clinical demo scenarios
-│   └── manage.ps1               # Windows PowerShell automation helper
-├── tests/                       # Automated test suite (37+ tests)
-├── Dockerfile                   # FastAPI backend image
-├── Dockerfile.ui                # Streamlit UI image
-├── docker-compose.yml           # Multi-service orchestration (Ollama + API + UI)
-├── docker-compose.gpu.yml       # NVIDIA GPU acceleration override
-├── Makefile                     # Build & automation shortcuts
-├── requirements.txt             # Pinned Python dependencies
-└── README.md                    # Project documentation
-```
-
----
-
-## Running Tests
-
-Execute the full automated test suite (37 unit & integration tests):
+Yêu cầu máy tính đã cài đặt Docker Desktop.
 
 ```bash
-pytest -v
-```
-
-All tests pass 100% across API schemas, endpoints, citation parser, and retrieval logic.
-
----
-
-## Docker Deployment
-
-Start the complete 3-service stack (Ollama + FastAPI + Streamlit UI):
-
-```bash
+# Khởi động 3 dịch vụ (Ollama, Backend API, Streamlit UI)
 docker compose up -d --build
-```
 
-With NVIDIA GPU passthrough:
-
-```bash
+# Hoặc kích hoạt GPU NVIDIA:
 docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d --build
 ```
 
-Stop and clean up containers:
+* Giao diện Web: http://localhost:8501
+* Tài liệu API Swagger: http://localhost:8000/docs
+* Kiểm tra sức khỏe hệ thống: http://localhost:8000/health
 
+Dừng hệ thống:
 ```bash
 docker compose down
 ```
 
 ---
 
-## License
+### Cách 2: Chạy Cục Bộ (Local Python)
 
-This project is licensed under the [MIT License](LICENSE).
+```bash
+# 1. Cài đặt thư viện dependencies
+pip install -r requirements.txt
+
+# 2. Khởi động Backend và Frontend
+python -m uvicorn src.api.app:app --host 127.0.0.1 --port 8000 --reload
+python -m streamlit run src/ui/app.py
+```
+
+Chạy kiểm thử tự động toàn bộ kịch bản:
+```bash
+pytest -v
+python scripts/demo_runner.py
+```
+
+---
+
+## 6. Cấu Trúc Dự Án Tinh Gọn
+
+```plaintext
+Ask_Med/
+├── configs/
+│   └── config.yaml              # Cấu hình trung tâm: Models, Paths, Ingestion, RRF
+├── data/
+│   ├── bm25_index/bm25.pkl      # Chỉ mục từ khóa BM25 (703 chunks)
+│   ├── chroma_db/               # Cơ sở dữ liệu vector ChromaDB (703 items)
+│   └── eval/
+│       ├── eval_dataset.json    # Bộ 25 câu hỏi kiểm thử chuẩn
+│       └── results/             # Báo cáo đánh giá RAGAs (CSV, JSON)
+├── src/
+│   ├── api/
+│   │   ├── app.py               # FastAPI REST & SSE Streaming Endpoints
+│   │   └── schemas.py           # Pydantic v2 Schemas (Data Contracts)
+│   ├── generation/
+│   │   ├── citation_parser.py   # Bóc tách và kiểm thực mã PMID
+│   │   ├── llm_client.py        # Client Ollama LLM
+│   │   ├── prompts.py           # Clinical Prompts chống ảo giác
+│   │   └── rag_pipeline.py      # Bộ điều phối tổng thể AskMedPipeline
+│   ├── ingestion/
+│   │   ├── chunker.py           # Cắt đoạn câu (512 tokens / 128 overlap)
+│   │   ├── cleaner.py           # Làm sạch và lọc chất lượng Abstract
+│   │   ├── ingest_pipeline.py   # Pipeline cào và lập chỉ mục PubMed
+│   │   └── pubmed_fetcher.py    # Giao tiếp API NCBI E-Utilities
+│   ├── retrieval/
+│   │   ├── bm25_search.py       # Tìm kiếm từ khóa BM25
+│   │   ├── hybrid_retriever.py  # Thuật toán Reciprocal Rank Fusion (RRF)
+│   │   ├── reranker.py          # Cross-Encoder Reranker
+│   │   └── vector_search.py     # Tìm kiếm ngữ nghĩa ChromaVectorStore
+│   └── ui/
+│       ├── app.py               # Trang chủ Streamlit & Tổng quan
+│       └── pages/
+│           ├── 1_Chat.py        # Giao diện Chat lâm sàng & Passage Inspector
+│           ├── 2_Evaluation.py  # Dashboard phân tích RAGAs & Radar Chart
+│           └── 3_Data_Manage.py # Quản lý kho 620 bài báo & Nạp tự động
+├── docs/images/                 # Hình ảnh minh họa kịch bản demo và phân tích
+├── scripts/
+│   ├── demo_runner.py           # Diễn tập tự động các kịch bản lâm sàng
+│   └── manage.ps1               # Script tiện ích quản trị Windows PowerShell
+├── tests/                       # 37+ Unit tests & Integration tests
+├── Dockerfile                   # Image Backend FastAPI
+├── Dockerfile.ui                # Image Frontend Streamlit
+├── docker-compose.yml           # Điều phối 3 containers (Ollama, API, UI)
+├── Makefile                     # Quản lý 12 lệnh vận hành tự động
+├── requirements.txt             # Danh mục thư viện phụ thuộc
+└── README.md                    # Tài liệu hướng dẫn dự án
+```
