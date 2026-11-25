@@ -11,6 +11,7 @@ Features:
 """
 
 import json
+import os
 from pathlib import Path
 import pickle
 import time
@@ -144,7 +145,7 @@ st.markdown(
 # -----------------------------------------------------------------------------
 BM25_FILE = Path("data/bm25_index/bm25.pkl")
 CHROMA_DIR = Path("data/chroma_db")
-API_BASE_URL = "http://127.0.0.1:8000"
+API_BASE_URL = os.environ.get("API_BASE_URL", "http://127.0.0.1:8000")
 
 
 @st.cache_data
@@ -510,3 +511,4 @@ with tab_analytics:
                 yaxis_title="Số lượng đoạn văn bản"
             )
             st.plotly_chart(fig_hist, use_container_width=True)
+

@@ -12,6 +12,7 @@ Features:
 """
 
 import json
+import os
 from pathlib import Path
 import time
 from typing import Any, Dict, List, Optional
@@ -146,7 +147,7 @@ st.markdown(
 # -----------------------------------------------------------------------------
 # 3. Backend Communication Helpers
 # -----------------------------------------------------------------------------
-API_BASE_URL = "http://127.0.0.1:8000"
+API_BASE_URL = os.environ.get("API_BASE_URL", "http://127.0.0.1:8000")
 
 
 def check_api_health() -> Dict[str, Any]:

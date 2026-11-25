@@ -11,6 +11,7 @@ Features:
 """
 
 import json
+import os
 from pathlib import Path
 import pickle
 import time
@@ -138,8 +139,9 @@ st.markdown(
 # -----------------------------------------------------------------------------
 def get_system_health() -> dict:
     """Checks FastAPI backend /health endpoint with fast fallback."""
+    api_base = os.environ.get("API_BASE_URL", "http://127.0.0.1:8000")
     try:
-        with urllib.request.urlopen("http://127.0.0.1:8000/health", timeout=1.5) as resp:
+        with urllib.request.urlopen(f"{api_base}/health", timeout=1.5) as resp:
             if resp.status == 200:
                 return json.loads(resp.read().decode())
     except Exception:

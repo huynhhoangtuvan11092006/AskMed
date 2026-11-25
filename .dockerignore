@@ -1,0 +1,46 @@
+# ==============================================================================
+# Ask_Med: Docker Build Ignore Rules (.dockerignore)
+# Excludes unnecessary files to optimize build context transfer and image size
+# ==============================================================================
+
+# Version Control
+.git
+.gitignore
+.gitattributes
+.github
+
+# Python Virtual Environments & Bytecode
+venv/
+env/
+venv*/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Testing, Linter & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# IDEs & Editor Metadata
+.idea/
+.vscode/
+.gemini/
+*.swp
+*.swo
+
+# Temporary Files & Local Logs
+*.log
+logs/
+tmp/
+temp/
+.DS_Store
+Thumbs.db
+desktop.ini
